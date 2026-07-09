@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقرير المجلس — الفرح أم الحداثة</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; background: #f9f9f7; color: #1a1a1a; line-height: 1.8; direction: rtl; }
+  .header { background: #1a1a1a; color: #fff; padding: 40px 48px; }
+  .header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+  .header .question { margin-top: 12px; font-size: 14px; color: #999; line-height: 1.8; max-width: 700px; }
+  .header .timestamp { margin-top: 16px; font-size: 12px; color: #666; }
+  .container { max-width: 860px; margin: 0 auto; padding: 48px 24px; }
+
+  .verdict { background: #fff; border: 1px solid #e5e5e0; border-radius: 8px; overflow: hidden; margin-bottom: 32px; }
+  .verdict-header { background: #1a1a1a; color: #fff; padding: 20px 28px; }
+  .verdict-header h2 { font-size: 13px; font-weight: 600; letter-spacing: 0.8px; color: #aaa; }
+  .verdict-header .verdict-title { font-size: 18px; font-weight: 600; color: #fff; margin-top: 6px; }
+  .verdict-body { padding: 28px; }
+  .verdict-section { margin-bottom: 28px; }
+  .verdict-section:last-child { margin-bottom: 0; }
+  .verdict-section h3 { font-size: 11px; font-weight: 700; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .verdict-section p { font-size: 15px; color: #2a2a2a; line-height: 1.8; }
+  .verdict-section p + p { margin-top: 10px; }
+
+  .highlight-box { background: #f0f0eb; border-right: 3px solid #1a1a1a; border-left: none; padding: 16px 20px; border-radius: 6px 0 0 6px; margin-top: 12px; }
+  .highlight-box p { font-size: 15px; font-weight: 500; color: #1a1a1a; }
+
+  .one-thing { background: #1a1a1a; color: #fff; border-radius: 6px; padding: 20px 24px; margin-top: 16px; }
+  .one-thing .label { font-size: 11px; font-weight: 700; color: #888; margin-bottom: 8px; }
+  .one-thing p { font-size: 15px; color: #fff; line-height: 1.8; }
+
+  .visual { background: #fff; border: 1px solid #e5e5e0; border-radius: 8px; padding: 28px; margin-bottom: 32px; }
+  .visual h2 { font-size: 13px; font-weight: 700; color: #888; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid-item { border-radius: 6px; padding: 14px 16px; }
+  .grid-item .label { font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+  .grid-item .name { font-size: 14px; font-weight: 600; }
+  .grid-item .stance { font-size: 12px; margin-top: 4px; }
+  .for-b { background: #e8f4e8; }
+  .for-b .label { color: #2d7a2d; }
+  .for-b .name { color: #1a4a1a; }
+  .for-a { background: #e8eef8; }
+  .for-a .label { color: #2d4a8a; }
+  .for-a .name { color: #1a2a5a; }
+  .nuanced { background: #f5f0e8; }
+  .nuanced .label { color: #8a5a2d; }
+  .nuanced .name { color: #4a2a1a; }
+
+  .collapsible-section { background: #fff; border: 1px solid #e5e5e0; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+  .collapsible-toggle { width: 100%; background: none; border: none; padding: 18px 24px; text-align: right; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .collapsible-toggle:hover { background: #f5f5f2; }
+  .collapsible-toggle .toggle-title { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+  .collapsible-toggle .toggle-sub { font-size: 12px; color: #888; margin-top: 2px; }
+  .collapsible-toggle .arrow { font-size: 12px; color: #888; transition: transform 0.2s; }
+  .collapsible-toggle.open .arrow { transform: rotate(180deg); }
+  .collapsible-content { padding: 0 24px 20px; display: none; border-top: 1px solid #f0f0eb; padding-top: 20px; }
+  .collapsible-content.visible { display: block; }
+  .collapsible-content p { font-size: 14px; color: #333; line-height: 1.8; }
+  .collapsible-content p + p { margin-top: 10px; }
+  .advisor-tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 3px; margin-bottom: 12px; }
+  .tag-contrarian { background: #fde8e8; color: #8a2d2d; }
+  .tag-firstprinciples { background: #e8eef8; color: #2d4a8a; }
+  .tag-expansionist { background: #e8f4e8; color: #2d7a2d; }
+  .tag-outsider { background: #f5f0e8; color: #8a5a2d; }
+  .tag-executor { background: #f0e8f8; color: #5a2d8a; }
+
+  .section-label { font-size: 13px; font-weight: 700; color: #888; margin: 32px 0 12px; text-transform: uppercase; letter-spacing: 0.8px; }
+  .footer { text-align: center; padding: 32px; color: #aaa; font-size: 12px; border-top: 1px solid #e5e5e0; margin-top: 32px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>تقرير مجلس النصائح</h1>
+  <div class="question">السؤال: أيّ الموقفَين أقوى لمشروع أرشيف التخرج — "الفرح كان فعلًا سياسيًا" أم "الحداثة العربية ارتدت وجه المرأة" — وكيف يُقدَّم المفهوم المختار بأفضل صورة؟</div>
+  <div class="timestamp">الجلسة: 21 يونيو 2026 · 5 مستشارين · 5 مراجعين · رئيس واحد</div>
+</div>
+
+<div class="container">
+
+  <!-- VERDICT -->
+  <div class="verdict">
+    <div class="verdict-header">
+      <h2>حكم الرئيس</h2>
+      <div class="verdict-title">الموقف ب — مع حمل الموقف أ في داخله</div>
+    </div>
+    <div class="verdict-body">
+
+      <div class="verdict-section">
+        <h3>ما اتفق عليه المجلس</h3>
+        <p>الموقف ب هو الأساس البنيوي الأقوى. كل مستشار — بمن فيهم من دافع بأشد قوة عن الحضور العاطفي للموقف أ — أقرّ بأن تصنيفات الموقف ب أكثر توثيقًا وقابلية للاختبار، وأيسر في التواصل مع مَن يدخل المشروع دون خلفية مسبقة.</p>
+        <p>فئة "قبل وبعد" فئة محورية. ثلاثة مستشارين أشاروا إليها بشكل مستقل ووصفوها بأنها "مدمّرة". حين تستطيع فئة واحدة أن تُجادل بكامل الأطروحة دون كلمة على الجدار — فهذا دليل بنيوي على أن الإطار يعمل.</p>
+        <p>الجمع بين الموقفين على مستوى واحد ينتج ارتباكًا لا ثراءً. كل من تناول سؤال الجمع اتفق على هذا.</p>
+      </div>
+
+      <div class="verdict-section">
+        <h3>أين اختلف المجلس</h3>
+        <p>الخلاف الحقيقي يدور حول البداهة وترتيب الحجة. المستشار الخارجي رأى أن الموقف أ أقوى لأنه لا يحتاج اتفاقًا نظريًا مسبقًا — امرأة تضحك عام 1948 تتكلم قبل أي شرح. الصورة تُثبت النظرية. أما المفكر من المبادئ الأولى والمنفّذ فرأيا العكس: الموقف أ يطلب من المشاهد أن يقبل التفسير قبل أن تعني الصورة ما تقوله. الموقف ب يبني الحجة بنيويًا — التصنيفات بذاتها تُظهر الآلية.</p>
+        <p>كلا الموقفين قابل للدفاع. الحاسم: <strong>المصممة تعرض على لجنة تخرج، لا على زوار معرض. منطق اللجنة يحسم التعادل.</strong></p>
+      </div>
+
+      <div class="verdict-section">
+        <h3>النقاط العمياء التي كشفها المجلس</h3>
+        <p><strong>النصوص العربية.</strong> جميع المراجعين الخمسة أثاروا هذه النقطة باستقلالية تامة. التسميات والعناوين والنصوص التحريرية في هذه المجلات ليست زينة — بل هي أدلة. امرأة تضحك تحت تعليق يصفها بـ"الزوجة المصرية الحديثة" هي قطعة أرشيفية مختلفة تمامًا عن الصورة ذاتها بتعليق آخر. لا يأخذ أيٌّ من الموقفين هذا في الاعتبار حتى الآن.</p>
+        <p><strong>سياق النشر.</strong> الصورة ذاتها في صفحة إعلانية تختلف عن الصورة ذاتها في صفحة تحريرية — بصرف النظر عمّا ترتديه المرأة أو تفعله.</p>
+        <p><strong>علاقة المصممة بالمادة.</strong> الإطار الأقوى هو الذي تستطيع المصممة أن تدافع عنه بقناعة أمام اللجنة. هل نشأ أيٌّ من الموقفين من تصفح الصور فعليًا، أم فُرض قبل فتح الأرشيف؟ اللجنة تلحظ الفرق.</p>
+      </div>
+
+      <div class="verdict-section">
+        <h3>التوصية</h3>
+        <p>استخدمي الموقف ب عمودًا فقريًا. احمِلي المسجّل العاطفي للموقف أ داخل كل فئة من فئات الموقف ب — لا إلى جانبها.</p>
+        <p>حين تبنين فئة "الوجه الحديث"، ستحتوي الصور داخلها على فرح وحزن وأداء وغموض. لا تحتاجين فئة منفصلة اسمها "الضحكة" — بل تحتاجين أن تُريا أن "الوجه الحديث" ضحك أحيانًا، وأن تلك الضحكة كانت تؤدي الشغل الإيديولوجي ذاته الذي يؤديه اللباس.</p>
+        <div class="highlight-box">
+          <p>الجملة المحورية للجنة: "هذه المجلات لم تكتفِ بنشر صور النساء. استخدمت صورهن لتُجادل من أجل نسخة من الحداثة. هذا الأرشيف يفهرس تلك الحجة."</p>
+        </div>
+        <p style="margin-top: 12px;">تحدّي الناقد — ماذا يُظهر هذا الأرشيف تحديدًا مما لم نعرفه من قبل؟ — هو السؤال الصحيح. فانون وليلى أحمد نظّرا الآلية. هذا الأرشيف يُظهر الآلية تعمل في مجلات بعينها، في أشهر بعينها، في صفحات بعينها. الإسهام إثباتي لا نظري. وهذا موقف مشروع وقابل للدفاع في مشروع تخرج.</p>
+      </div>
+
+      <div class="verdict-section">
+        <h3>الخطوة الأولى والوحيدة</h3>
+        <div class="one-thing">
+          <div class="label">الخطوة التالية الفورية</div>
+          <p>اقرئي التعليقات العربية الأصلية على ثلاثين صورة قبل أن تصنّفي صورة واحدة في أي فئة. النقاش حول ما "تفعله" هذه الصور يجري حاليًا كما لو كانت الصور صامتة. لكنها ليست كذلك. إن وجدتِ أن التعليقات تتناقض بشكل منهجي مع ما تُظهره الصور — صورة حزينة بعنوان انتصاري، امرأة بلباس تقليدي تُوصف بلغة التقدم — فلن يكون لديكِ مجرد إطار. ستكون لديكِ نتيجة. وذلك هو الفرق بين شرح أطروحة وصياغتها.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ALIGNMENT VISUAL -->
+  <div class="visual">
+    <h2>مواقف المستشارين</h2>
+    <div class="grid">
+      <div class="grid-item for-b">
+        <div class="label">الموقف ب</div>
+        <div class="name">المفكر من المبادئ الأولى</div>
+        <div class="stance">ب قابل للاختبار، موثّق، بنيوي</div>
+      </div>
+      <div class="grid-item for-b">
+        <div class="label">الموقف ب</div>
+        <div class="name">المنفّذ</div>
+        <div class="stance">ب واضح وقابل للإشارة والدفاع أمام اللجنة</div>
+      </div>
+      <div class="grid-item for-b">
+        <div class="label">ب + أ في داخله</div>
+        <div class="name">الموسّع</div>
+        <div class="stance">ب عمودًا فقريًا، أ سجلًا عاطفيًا في الداخل</div>
+      </div>
+      <div class="grid-item for-a">
+        <div class="label">الموقف أ</div>
+        <div class="name">المستشار الخارجي</div>
+        <div class="stance">أ بديهي من الصور — الصورة تُثبت النظرية</div>
+      </div>
+      <div class="grid-item nuanced">
+        <div class="label">لا هذا ولا ذاك</div>
+        <div class="name">الناقد</div>
+        <div class="stance">كلاهما يحتاج أدلة قد لا يوفّرها الأرشيف</div>
+      </div>
+      <div class="grid-item" style="background:#f5f5f2; border: 1px solid #ddd;">
+        <div class="label" style="color:#555;">المراجعة</div>
+        <div class="name" style="color:#333;">إجماع</div>
+        <div class="stance" style="color:#555;">الموسّع الأقوى · المنفّذ أكبر نقطة عمياء</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADVISOR RESPONSES -->
+  <div class="section-label">ردود المستشارين كاملة</div>
+
+  <div class="collapsible-section">
+    <button class="collapsible-toggle" onclick="toggle(this)">
+      <div>
+        <div class="toggle-title">الناقد</div>
+        <div class="toggle-sub">لا يصمد أيٌّ من الموقفين أمام الأدلة</div>
+      </div>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="collapsible-content">
+      <span class="advisor-tag tag-contrarian">الناقد</span>
+      <p>كلا الموقفين يقعان في مشكلة يتجنّبها المصمم: كلاهما يتطلب ادعاءات قد لا يدعمها الأرشيف. الموقف أ يؤكد أن نشر صورة مبهجة "كان موقفًا" — لكن هذا تكهن يتنكّر في هيئة تحليل. ما لم يكن لدى المصممة رسائل تحريرية أو تصريحات ناشرين تُثبت النية، فهي تعكس معنى خلفيًا على الصور. امرأة مبتهجة في مقهى ربما نُشرت لأن ذلك يبيع المجلة. الفرح كفعل سياسي قراءة لا حقيقة — ولجنة التخرج ستسأل: أين دليلك؟</p>
+      <p>الموقف ب مشكلته معاكسة: أكثر أمانًا أكاديميًا لكنه أكثر تفاهة فكريًا. "أجساد النساء كشاشات عرض للهوية القومية" نظرية راسخة — فانون وليلى أحمد وليلى أبو لغد قالوها بشكل أفضل. إن لم يُضف هذا الأرشيف شيئًا جديدًا، فالمصممة توضّح أطروحة لا تصنعها.</p>
+      <p>السؤال الحقيقي المتجنَّب: ماذا يُظهر هذا الأرشيف تحديدًا مما لم نعرفه؟ ما المفاجئ؟ ما الذي يتعارض مع الرواية المتوقعة؟ إن وُجدت صور تقاوم كلا الإطارين — نساء لسن رمزًا للحداثة ولا وكيلات مقاومة بهيجة، بل حاضرات ببساطة — فهذا التوتر أكثر صدقًا وأصالة من أي موقف.</p>
+    </div>
+  </div>
+
+  <div class="collapsible-section">
+    <button class="collapsible-toggle" onclick="toggle(this)">
+      <div>
+        <div class="toggle-title">المفكر من المبادئ الأولى</div>
+        <div class="toggle-sub">الموقف ب — الحجة البنيوية تتقدم على التأكيد العاطفي</div>
+      </div>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="collapsible-content">
+      <span class="advisor-tag tag-firstprinciples">المبادئ الأولى</span>
+      <p>السؤال المطروح هو "أيهما أفضل". السؤال الجدير بالطرح: "ما الذي يفعله هذا المشروع فعلًا؟" هذا أرشيف تصميمي لا أطروحة أكاديمية. المخرج الأساسي ليس حجة — بل نظام تصنيف يجب أن يعمل على صور حقيقية لنساء حقيقيات عبر مئات العناصر.</p>
+      <p>الموقف أ يُصنّف بحسب السجل العاطفي (ضحك، حزن، أداء). الموقف ب يُصنّف بحسب الوظيفة الاجتماعية (إشارة حداثة، إشارة تقليد، إعلان). السجل العاطفي ذاتي وغير مستقر — صورة واحدة يمكن أن تحتوي على ضحك وحزن معًا. الوظيفة الاجتماعية أكثر قابلية للتوثيق.</p>
+      <p>الموقف أ يطلب من المشاهد قبول التفسير مسبقًا. الموقف ب يبني الحجة بنيويًا — التصنيفات ذاتها تُظهر الآلية. لا تحتاجين أن تخبري المشاهد أن أجساد النساء كانت مواقع إسقاط. الأرشيف المنظَّم هكذا يُظهر ذلك. الموقف ب أقوى لأنه قابل للاختبار وقابل للتوسيع ويُعلّم المشاهد شيئًا عن كيفية عمل الإعلام.</p>
+    </div>
+  </div>
+
+  <div class="collapsible-section">
+    <button class="collapsible-toggle" onclick="toggle(this)">
+      <div>
+        <div class="toggle-title">الموسّع</div>
+        <div class="toggle-sub">الموقف ب عمودًا، الموقف أ في داخله — المشروع يصبح أكبر</div>
+      </div>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="collapsible-content">
+      <span class="advisor-tag tag-expansionist">الموسّع</span>
+      <p>الموقف ب مُقلَّل التقدير والمجلس سيغفل السبب. ما الموقف ب في الحقيقة: نظرية إعلام. الموقف أ يقرأ الصور عاطفيًا. الموقف ب يقرأها بنيويًا — كنظام دلالات يعمل فيه الجسد الأنثوي كإشارة ناقلة للإيديولوجيا القومية. هذا ادعاء فكري أكبر بكثير، ويفتح أراضي لا يستطيع الموقف أ الوصول إليها.</p>
+      <p>الفائدة الحقيقية: هذا الأرشيف يتحول من مجموعة صور نساء إلى أدلة على كيفية بناء الإعلام العربي الشامل لمفهوم الحداثة. الأطروحة تتصل بالاستشراق، بـ"المجتمعات المتخيَّلة" لبندكت أندرسون، بالسياسة البصرية لإنهاء الاستعمار. لجنة التخرج ستشعر بهذا الثقل.</p>
+      <p>الحركة التوليفية: استخدمي الموقف ب عمودًا فقريًا ودعي الموقف أ يعمل داخل كل فئة فرعية كسجل عاطفي. فئة "الوجه الحديث" تحتوي وجوهًا بهيجة ووجوهًا حزينة. الفرح يصبح مقروءًا كفعل سياسي تحديدًا لأنك أريتِ المشاهد أن الصورة كانت دائمًا تؤدي عملًا إيديولوجيًا. فئة "قبل وبعد" وحدها — إن وُجدت في الأرشيف — يمكن أن تكون مدمّرة.</p>
+    </div>
+  </div>
+
+  <div class="collapsible-section">
+    <button class="collapsible-toggle" onclick="toggle(this)">
+      <div>
+        <div class="toggle-title">المستشار الخارجي</div>
+        <div class="toggle-sub">الموقف أ — الصورة تُثبت النظرية لا العكس</div>
+      </div>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="collapsible-content">
+      <span class="advisor-tag tag-outsider">الخارجي</span>
+      <p>الموقف ب يحمل مشكلة بنيوية ستضرّك في العرض: يتطلب من المشاهد الموافقة على النظرية قبل أن تكتسب الصور معنى. تطلبين من شخص ما أن ينظر إلى امرأة بلباس غربي ويقبل — قبل أن تجادلي — أنها كانت "تُستخدم" كشاشة عرض. إن دفع عضو في اللجنة بالاعتراض، يتزعزع الإطار كله.</p>
+      <p>الموقف أ بديهي من الصور. امرأة تضحك عام 1948 تتكلم من تلقاء نفسها. لا تحتاجين شرح النظرية قبل أن تؤثر الصورة. الصورة تُثبت النظرية. هذا هو الترتيب الصحيح.</p>
+      <p>فئة "الحزن" في الموقف أ ليست استثناءً — إنها العمود الحامل. ليست مجرد النقيض؛ بل هي ما يجعل الفرح مقروءًا كاختيار. فئة اسمها "الحزن" إلى جانب "الضحك" تُقدّم الحجة السياسية دون أي نص. ذلك التناقض هو عرضك. بالكاد تحتاجين لافتة على الجدار.</p>
+    </div>
+  </div>
+
+  <div class="collapsible-section">
+    <button class="collapsible-toggle" onclick="toggle(this)">
+      <div>
+        <div class="toggle-title">المنفّذ</div>
+        <div class="toggle-sub">الموقف ب — واضح، يمكن الإشارة إليه، قابل للدفاع أمام اللجنة</div>
+      </div>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="collapsible-content">
+      <span class="advisor-tag tag-executor">المنفّذ</span>
+      <p>الموقف ب يفوز على صعيد التنفيذ. الموقف أ يطلب من المشاهد قبول قفزة تفسيرية — أن الفرح كان سياسيًا بوعي. عليكِ أن تجادلي بذلك. الموقف ب واضح. تستطيعين الإشارة إلى الصورة وتقول: انظر، لباس غربي، غلاف مجلة وطنية، 1952. الدليل في الوثيقة ذاتها. هذا أيسر بكثير في الدفاع أمام لجنة التخرج.</p>
+      <p>المسار العملي: افتحي 374 صورة وصنّفيها في ست دلاء. الفئات مسمّاة. لا تحتاجين اختراع إطار، بل تطبيق إطار موجود. لتقديم المشروع: ابني جدارًا مقارنًا — نفس المرأة، صورتان، لباسان مختلفان، سياق نشر مختلف. ذلك المشهد البصري يفعل أكثر من ثلاث فقرات من الحجج.</p>
+      <p>لا تجمعي الموقفين. مشروع يحتاج فقرة لشرح منطقه قد خسر مسبقًا. اسرقي شيئًا واحدًا من الموقف أ: كلمة "سياسي". أضيفيها إلى الموقف ب: "الحداثة العربية ارتدت وجه المرأة، ولم يكن ذلك قط بريئًا." الآن أصبح للموقف ب حدّة الموقف أ النقدية دون أن تطلبي من المشاهد أداء العمل التفسيري بنفسه.</p>
+    </div>
+  </div>
+
+  <!-- PEER REVIEW -->
+  <div class="section-label">أبرز نتائج المراجعة</div>
+
+  <div class="collapsible-section">
+    <button class="collapsible-toggle" onclick="toggle(this)">
+      <div>
+        <div class="toggle-title">ملخص المراجعة</div>
+        <div class="toggle-sub">5 مراجعين · إجماع على الأقوى والأضعف</div>
+      </div>
+      <span class="arrow">▼</span>
+    </button>
+    <div class="collapsible-content">
+      <p><strong>الرد الأقوى (بالإجماع): الموسّع.</strong> اختاره جميع المراجعين الخمسة باستقلالية. الرؤية الحاسمة: الموقف أ يعمل داخل إطار الموقف ب — لا إلى جانبه. هذه ليست تسوية؛ إنها تراتبية بنيوية. الموسّع كان المستشار الوحيد الذي صاغها بدقة.</p>
+      <p style="margin-top:12px;"><strong>أكبر نقطة عمياء (بالإجماع): المنفّذ.</strong> جميع المراجعين الخمسة أشاروا إليها. السهولة التشغيلية ("صنّفي 30 صورة هذا الأسبوع") ليست حجة تصميمية. التوصية بالموقف ب لأنه أسهل في التصنيف خطأ في التصنيف — مشروع التخرج يُقيَّم على التماسك المفاهيمي لا كفاءة سير العمل.</p>
+      <p style="margin-top:12px;"><strong>ما غاب عن الجميع — النصوص العربية.</strong> ثلاثة من خمسة مراجعين أثاروا هذا بشكل مستقل: التعليقات والعناوين والأطر التحريرية الأصلية بالعربية هي المصدر الأول الذي يتجاهله كلا الموقفين حاليًا. النقاش حول ما "تفعله" هذه الصور يجري قبل قراءة ما قالت عنه المجلات نفسها.</p>
+      <p style="margin-top:12px;"><strong>أيضًا ما غاب: علاقة المصممة بالمادة.</strong> الإطار الأقوى هو الذي اكتشفته المصممة أثناء تصفّح الصور — لا الذي جيء به من خارج الأرشيف. لجنة التخرج تلحظ الفرق.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  مجلس النصائح · 21 يونيو 2026 · مشروع أرشيف مكتبة درويش علمي<br>
+  مستوحى من منهجية مجلس النصائح لـ Andrej Karpathy
+</div>
+
+<script>
+function toggle(btn) {
+  btn.classList.toggle('open');
+  const content = btn.nextElementSibling;
+  content.classList.toggle('visible');
+}
+</script>
+
+</body>
+</html>

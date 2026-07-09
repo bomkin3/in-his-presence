@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>kawakib_0001 &mdash; Al-Kawakib &mdash; Darwish Alami Library</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    color: red;
+    background-color: white;
+    font-family: 'ABC Monument Grotesk Mono Unlicensed Trial', 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    line-height: 1.2;
+    border-top: 2px solid black;
+  }
+  a { color: red; text-decoration: none; }
+  .mono { font-size: 11px; }
+
+  /* ===== Header ===== */
+  .site-title { padding: 0 12px; }
+  .site-title h1 {
+    margin: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: normal;
+    width: fit-content;
+  }
+  nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 0 11px;
+  }
+  nav .navigation_element { display: table-cell; }
+  nav .navigation_element a {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 7px;
+    border-top: 1px solid red;
+    border-bottom: 1px solid red;
+    border-right: 1px solid red;
+    background-color: white;
+  }
+  nav .navigation_element:first-child a { border-left: 1px solid red; }
+  nav .navigation_element.active a { background-color: red; color: white; }
+
+  /* ===== Document header ===== */
+  .archive-detail { margin: 0 25%; padding: 40px 5px; }
+  @media screen and (max-width: 1000px) {
+    .archive-detail { margin: 0 auto; padding: 24px 10px; }
+  }
+
+  .archive-tags { display: flex; }
+  .tag { display: flex; }
+  .tag-main {
+    padding: 0 7px;
+    background-color: rgba(255, 214, 214, 1);
+    height: 40px;
+    display: flex;
+    align-items: center;
+  }
+  .tag-sub {
+    padding: 0 7px;
+    background-color: rgba(255, 214, 214, 0.5);
+    height: 40px;
+    display: flex;
+    align-items: center;
+  }
+
+  .archive-header-framed { border: 1px solid red; }
+
+  .archive-title {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: -1px;
+    border-bottom: 1px solid red;
+    padding: 14px 7px;
+    display: flex;
+    align-items: center;
+  }
+  @media screen and (max-width: 800px) {
+    .archive-title { font-size: 24px; }
+  }
+
+  .archive-meta {
+    padding: 7px;
+    border-bottom: 1px solid red;
+    font-size: 16px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .archive-meta .ref { font-family: monospace; font-size: 13px; }
+
+  /* ===== Full-size document viewer ===== */
+  .archive-image {
+    padding: 12px;
+    aspect-ratio: 1 / 1;
+    position: relative;
+  }
+  .archive-image a { display: block; height: 100%; cursor: zoom-in; }
+  .archive-image img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+  .archive-image__hint {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    font-family: monospace;
+    font-size: 11px;
+    background: white;
+    border: 1px solid red;
+    padding: 4px 8px;
+    pointer-events: none;
+  }
+
+  /* Full-size lightbox overlay (click image to open) */
+  .doc-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.97);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    cursor: zoom-out;
+    padding: 24px;
+  }
+  .doc-lightbox.is-open { display: flex; }
+  .doc-lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border: 1px solid red;
+  }
+  .doc-lightbox__close {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    font-family: monospace;
+    font-size: 13px;
+    background: white;
+    border: 1px solid red;
+    padding: 6px 10px;
+    color: red;
+  }
+
+  /* ===== Sections ===== */
+  .section-title {
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: normal;
+    border-top: 1px solid red;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    margin: 0;
+  }
+  .section-content { padding: 12px 0; font-size: 20px; }
+  .section-content p { margin: 0 0 1em; }
+  .section-content p.ar { font-size: 18px; }
+
+  .keywords-section { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 0; }
+  .keywords-section .tag-sub { font-size: 16px; }
+
+  .spaces { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 0; }
+  .space { display: flex; gap: 6px; align-items: center; }
+  .space-dot { height: 12px; width: 12px; border-radius: 50%; background-color: red; display: inline-block; }
+  .space-name { font-weight: bold; }
+
+  .details-table { padding: 12px 0; font-size: 16px; }
+  .details-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,0,0,0.3); padding: 6px 0; }
+  .details-row:last-child { border-bottom: none; }
+  .details-row .k { font-weight: bold; }
+
+  .section-link { text-decoration: underline; font-size: 16px; }
+
+  /* ===== Related images grid ===== */
+  .detail-related-section {
+    width: calc(200% - 1px);
+    margin-left: calc(-50% + 1px);
+  }
+  @media screen and (max-width: 1000px) {
+    .detail-related-section { width: 100%; margin-left: 0; }
+  }
+  .all-content-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+  .content-article {
+    width: 25%;
+    aspect-ratio: 1/1;
+    border: 1px solid red;
+    margin-right: -1px;
+    margin-bottom: -1px;
+    position: relative;
+    overflow: hidden;
+  }
+  @media screen and (max-width: 1000px) { .content-article { width: 50%; } }
+  @media screen and (max-width: 700px) { .content-article { width: 100%; } }
+
+  .content-article a { display: flex; flex-direction: column; height: 100%; }
+  .content-article-thumb { flex: 1; overflow: hidden; padding: 6px; box-sizing: border-box; }
+  .content-article-thumb img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+  .content-article-tags { display: flex; }
+  .content-article-tag-main {
+    padding: 0 7px;
+    background-color: rgba(255, 214, 214, 1);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+  }
+  .content-article-tag-sub {
+    padding: 0 7px;
+    background-color: rgba(255, 214, 214, 0.5);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+  }
+  .content-article-caption {
+    padding: 8px 10px;
+    border-top: 1px solid red;
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  .see-more {
+    width: 25%;
+    aspect-ratio: 3/4;
+    border: 1px solid red;
+    margin-right: -1px;
+    margin-bottom: -1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+  @media screen and (max-width: 1000px) { .see-more { width: 50%; } }
+  @media screen and (max-width: 700px) { .see-more { width: 100%; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">
+    <a href="#"><h1>Darwish Alami Library</h1></a>
+  </div>
+  <nav aria-label="primary navigation">
+    <div class="navigation_element"><a href="#">Library</a></div>
+    <div class="navigation_element"><a href="#">Collections</a></div>
+    <div class="navigation_element active"><a href="#">Archive</a></div>
+    <div class="navigation_element"><a href="#">About</a></div>
+  </nav>
+</header>
+
+<main class="archive-detail">
+
+  <section class="archive-header">
+    <div class="archive-tags">
+      <div class="tag">
+        <a href="#"><div class="tag-main">Al-Kawakib</div></a>
+        <a href="#"><div class="tag-sub">People</div></a>
+      </div>
+    </div>
+
+    <div class="archive-header-framed">
+      <h1 class="archive-title">Charming and beautiful&hellip; Blanca Lida, emerging in cinema, dedicated her youth to study, resulting in a film</h1>
+
+      <div class="archive-meta">
+        <div class="ref">kawakib_0001</div>
+        <div>Al-Kawakib, p. 10&ndash;11</div>
+      </div>
+
+      <div class="archive-image">
+        <a href="Al-Kawakib/kawakib_0001.jpg" data-lightbox>
+          <img src="Al-Kawakib/kawakib_0001.jpg" alt="Scan of kawakib_0001.jpg">
+        </a>
+        <span class="archive-image__hint">click to view full size</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="archive-section">
+    <h2 class="section-title mono">Info</h2>
+    <div class="section-content">
+      <p>Charming and beautiful&hellip; Blanca Lida, emerging in cinema, dedicated her youth to study, resulting in a film p. 10 &ndash; 11</p>
+      <p class="ar" dir="rtl" lang="ar">جميلة ساحرة.. بلانكا ليدا الناشئة بالسينما تفرغت في شبابها للدراسة فبدت فيلما ص. 10 - 11</p>
+    </div>
+  </section>
+
+  <section class="archive-section">
+    <h2 class="section-title mono">Keywords</h2>
+    <div class="section-content keywords-section">
+      <div class="tag"><a href="#"><div class="tag-sub">People</div></a></div>
+    </div>
+  </section>
+
+  <section class="archive-section">
+    <h2 class="section-title mono">Collection</h2>
+    <div class="section-content">
+      <div class="spaces">
+        <a href="#" class="space">
+          <div class="space-dot"></div>
+          <div class="space-name">Al-Kawakib</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="archive-section">
+    <h2 class="section-title mono">Details</h2>
+    <div class="details-table">
+      <div class="details-row"><span class="k">Reference</span><span>kawakib_0001.jpg</span></div>
+      <div class="details-row"><span class="k">Dimensions</span><span>2000 &times; 3012 px</span></div>
+      <div class="details-row"><span class="k">Format</span><span>JPG</span></div>
+    </div>
+  </section>
+
+  <section class="archive-section">
+    <h2 class="section-title mono">Links</h2>
+    <div class="section-content">
+      <a class="section-link" href="Al-Kawakib/kawakib_0001.jpg" target="_blank">Open original file</a>
+    </div>
+  </section>
+
+  <section class="detail-related-section">
+    <h3 class="section-title mono">Related content</h3>
+
+    <div class="all-content-list">
+
+      <div class="content-article">
+        <a href="#">
+          <div class="content-article-thumb"><img src="Al-Kawakib/kawakib_0002.jpg" alt="kawakib_0002.jpg"></div>
+          <div class="content-article-tags">
+            <div class="content-article-tag-main">Al-Kawakib</div>
+            <div class="content-article-tag-sub">People</div>
+          </div>
+          <div class="content-article-caption">Research Magazine</div>
+        </a>
+      </div>
+
+      <div class="content-article">
+        <a href="#">
+          <div class="content-article-thumb"><img src="Al-Kawakib/kawakib_0007.jpg" alt="kawakib_0007.jpg"></div>
+          <div class="content-article-tags">
+            <div class="content-article-tag-main">Al-Kawakib</div>
+            <div class="content-article-tag-sub">People</div>
+          </div>
+          <div class="content-article-caption">Samira talks with friends &mdash; elegant attire for a summer evening</div>
+        </a>
+      </div>
+
+      <div class="content-article">
+        <a href="#">
+          <div class="content-article-thumb"><img src="Al-Kawakib/kawakib_0008.jpg" alt="kawakib_0008.jpg"></div>
+          <div class="content-article-tags">
+            <div class="content-article-tag-main">Al-Kawakib</div>
+            <div class="content-article-tag-sub">People</div>
+          </div>
+          <div class="content-article-caption">This collection of clothes is simple&hellip;</div>
+        </a>
+      </div>
+
+      <div class="content-article">
+        <a href="#">
+          <div class="content-article-thumb"><img src="Al-Kawakib/kawakib_0012.jpg" alt="kawakib_0012.jpg"></div>
+          <div class="content-article-tags">
+            <div class="content-article-tag-main">Al-Kawakib</div>
+            <div class="content-article-tag-sub">People</div>
+          </div>
+          <div class="content-article-caption">Listen here&hellip; her roots and her country</div>
+        </a>
+      </div>
+
+      <div class="content-article">
+        <a href="#">
+          <div class="content-article-thumb"><img src="Al-Kawakib/kawakib_0014.jpg" alt="kawakib_0014.jpg"></div>
+          <div class="content-article-tags">
+            <div class="content-article-tag-main">Al-Kawakib</div>
+            <div class="content-article-tag-sub">People</div>
+          </div>
+          <div class="content-article-caption">Chatter almost like caricature &mdash; rest of the sixties generation</div>
+        </a>
+      </div>
+
+      <a href="#" class="see-more">See more</a>
+
+    </div>
+  </section>
+
+</main>
+
+<div class="doc-lightbox" id="docLightbox">
+  <button type="button" class="doc-lightbox__close" id="docLightboxClose">CLOSE ✕</button>
+  <img id="docLightboxImg" src="" alt="">
+</div>
+
+<script>
+  (function () {
+    var lightbox = document.getElementById('docLightbox');
+    var lightboxImg = document.getElementById('docLightboxImg');
+    var closeBtn = document.getElementById('docLightboxClose');
+
+    document.querySelectorAll('[data-lightbox]').forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        lightboxImg.src = link.getAttribute('href');
+        lightbox.classList.add('is-open');
+      });
+    });
+
+    function close() { lightbox.classList.remove('is-open'); lightboxImg.src = ''; }
+    lightbox.addEventListener('click', close);
+    closeBtn.addEventListener('click', function (e) { e.stopPropagation(); close(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
+  })();
+</script>
+
+</body>
+</html>

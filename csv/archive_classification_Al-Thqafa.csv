@@ -1,0 +1,10 @@
+﻿Image Name,Primary_Category,Secondary_Category,All_Categories,Justification
+CamScanner 18-05-2026 13.33_1.JPG,Remembering People,None,Remembering People,The image contains textured surfaces typical of aged paper but no identifiable content related to any specified categories.
+CamScanner 18-05-2026 13.33_2.JPG,Remembering Leisure,None,Remembering Leisure,"The image contains people engaged in a social activity at a cafe or restaurant, indicating public relaxation and leisure time."
+CamScanner 18-05-2026 13.33_3.JPG,Remembering Desires,None,Remembering Desires,"The image features a magazine cover with prominent typography and design elements, indicative of commercial publication interests."
+CamScanner 18-05-2026 13.33_4.JPG,Remembering Desires,None,Remembering Desires,"The cover features only text and is the front of a magazine, suggesting a focus on commercial publication rather than individual portraits or leisure scenes."
+CamScanner 18-05-2026 13.33_5.JPG,Remembering Street,None,Remembering Street,"The page features a magazine table of contents and articles discussing public and political matters, typical of urban and civic discourse."
+CamScanner 18-05-2026 13.33_6.JPG,Remembering Desires,None,Remembering Desires,The image contains an advertisement for a product featuring celebratory language and pricing information.
+CamScanner 18-05-2026 13.33_7.JPG,Remembering People,None,Remembering People,"The image features a decorative motif design, which does not clearly fit any category but could be part of a magazine focusing on cultural or artistic expression linked to people's identities."
+CamScanner 18-05-2026 13.33_8.JPG,Remembering Desires,None,Remembering Desires,The page includes commercial advertisement elements with product showcases and explicit ad typography.
+CamScanner 18-05-2026 13.33_9.JPG,ERROR,None,ERROR,AttributeError: 'NoneType' object has no attribute 'strip'

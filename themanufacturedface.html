@@ -1,0 +1,3201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>The Manufactured Face</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; border: 0; font-size: 100%; font: inherit; vertical-align: baseline; }
+    article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section, main { display: block; }
+    body { line-height: 1; cursor: none; }
+    .filter-bar, .filter-bar * { cursor: pointer; }
+    .filter-section-label, .filter-icon-cell { cursor: default; }
+    #ctx-menu, #ctx-menu * { cursor: pointer; }
+    #color-btn {
+      position: fixed;
+      top: 72px;
+      right: 24px;
+      z-index: 1002;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 18px;
+      background: hsla(40, 8%, 9%, 0.95);
+      border: 1px solid hsla(51, 13%, 72%, 0.35);
+      border-radius: 3px;
+      backdrop-filter: blur(14px);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: hsla(51, 13%, 77%, 0.75);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    #color-btn:hover {
+      color: hsla(51, 13%, 96%, 1);
+      border-color: hsla(51, 13%, 72%, 0.65);
+    }
+    #color-btn.off {
+      color: hsla(51, 13%, 77%, 0.35);
+      border-color: hsla(51, 13%, 72%, 0.15);
+    }
+    #color-btn .cb-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: conic-gradient(
+        rgb(185,40,40) 0deg 72deg,
+        rgb(45,75,185) 72deg 144deg,
+        rgb(175,125,15) 144deg 216deg,
+        rgb(25,125,75) 216deg 288deg,
+        rgb(120,40,165) 288deg 360deg
+      );
+      flex-shrink: 0;
+      transition: opacity 0.2s;
+    }
+    #color-btn.off .cb-dot { opacity: 0.2; }
+
+    #story-btn {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      z-index: 1002;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: hsla(40, 8%, 9%, 0.95);
+      border: 1px solid hsla(51, 13%, 72%, 0.35);
+      border-radius: 3px;
+      backdrop-filter: blur(14px);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: hsla(51, 13%, 77%, 0.75);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    #story-btn:hover {
+      color: hsla(51, 13%, 96%, 1);
+      border-color: hsla(51, 13%, 72%, 0.65);
+    }
+    #story-btn svg {
+      width: 12px; height: 12px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+    }
+    ol, ul { list-style: none; }
+    img, video { display: block; }
+    i, em { font-style: italic; }
+    button { outline: 0; border: 0; cursor: pointer; background: none; padding: 0; color: #111; }
+
+    :root {
+      --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-mono: "IBM Plex Mono", "Courier New", Courier, monospace;
+      --size-s:  12px; --line-s: 17px;
+      --size-m:  16px; --line-m: 21px;
+      --size-l:  25px; --line-l: 30px;
+      --size-xl: 60px; --line-xl: 60px;
+      --bg-black: hsla(51, 0%, 12%, 1);
+      --bg-black-transparent: hsla(51, 0%, 12%, 0.85);
+      --bg-off-white: hsla(51, 9%, 94%, 1);
+      --border-off-white: hsla(51, 33%, 94%, 1);
+      --button-border: hsla(0, 0%, 50%, 0.25);
+      --bg-white: #FFFFFF;
+      --text-black: #333;
+      --text-grey: #999;
+      --text-light-grey: #aaa;
+      --grid-stroke: hsla(51, 33%, 94%, 0.21);
+      --shadow: 0 0 30px rgba(0,0,0,0.2);
+      --menu-title-height: 40px;
+      --menu-width: 260px;
+      --controls-height: 25px;
+      --content-container-margin: clamp(45px, 3.5vw, 70px);
+      --content-width: 480px;
+      --content-container-width: calc(var(--content-width) + var(--content-container-margin) * 2);
+      --outer-border-radius: 4px;
+      --inner-border-radius: 3px;
+      --column-gap: 15px;
+      --text-margin: 15px;
+      --margin: 50px;
+      --image-border: 6px;
+      --fast-easing: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @media (max-width: 768px) {
+      :root {
+        --size-l: 19px; --line-l: 24px;
+        --size-xl: 32px; --line-xl: 34px;
+        --content-container-margin: 8px;
+        --content-width: 100%;
+        --column-gap: 10px;
+        --margin: 30px;
+        --text-margin: 10px;
+        --menu-title-height: 47px;
+      }
+    }
+
+    /* ── Visualisation (dark left canvas) ── */
+    .visualisation {
+      position: fixed;
+      inset: 0;
+      background-color: #000;
+      z-index: 1;
+      overflow: hidden;
+      cursor: none;
+    }
+    .visualisation.dragging { cursor: none; }
+    .visualisation-grid {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+    }
+    .vis-map {
+      position: absolute;
+      width: 61000px;
+      height: 18000px;
+    }
+    @keyframes node-pop {
+      from { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+      to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+    .vis-node {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      cursor: pointer;
+      background-color: var(--bg-off-white);
+      border-radius: var(--outer-border-radius);
+      padding: 0;
+      opacity: 0;
+      overflow: hidden;
+      animation: node-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .vis-node:hover { opacity: 0.85; transition: opacity 0.15s; }
+    .vis-node img {
+      width: auto;
+      height: 260px;
+      max-width: 480px;
+      display: block;
+      border-radius: var(--inner-border-radius);
+      mix-blend-mode: multiply;
+      filter: grayscale(1) brightness(1) contrast(0.9) url(#duotone);
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+      transition: filter 0.3s;
+    }
+    body.color-mode .vis-node img {
+      filter: none;
+      mix-blend-mode: normal;
+    }
+    .vis-node-label {
+      position: absolute;
+      bottom: 5px;
+      left: 0; right: 0;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: hsla(51, 10%, 35%, 0.55);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 4px;
+    }
+    .vis-cluster-label {
+      position: absolute;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: hsla(51, 13%, 77%, 0.22);
+      transform: translate(-50%, 0);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ── Main (right content panel) ── */
+    main {
+      position: fixed;
+      top: 0; bottom: 0; right: 0;
+      left: calc(100% - var(--content-container-width));
+      overflow-y: scroll;
+      -webkit-overflow-scrolling: touch;
+      z-index: 2;
+      box-shadow: var(--shadow);
+      background-color: var(--bg-off-white);
+      color: var(--text-black);
+    }
+    @media (max-width: 768px) {
+      main {
+        position: relative;
+        left: 0; right: 0; bottom: auto;
+        top: 125vw;
+        overflow: visible;
+        border-radius: 12px 12px 0 0;
+      }
+    }
+
+    /* ── Navigation menu ── */
+
+    /* ── Map controls (left side buttons) ── */
+    .map-menu {
+      position: fixed;
+      left: var(--content-container-margin);
+      top: 70px;
+      z-index: 1001;
+    }
+    @media (max-width: 768px) { .map-menu { display: none; } }
+    .map-menu-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--image-border);
+    }
+    .zoom-button, .center-button, .help-button, .fullscreen-button {
+      width: var(--controls-height);
+      height: var(--controls-height);
+      border-radius: var(--inner-border-radius);
+      background: var(--bg-black-transparent);
+      backdrop-filter: blur(5px);
+      border: 1px solid var(--button-border) !important;
+      font-size: 0;
+      position: relative;
+      flex-shrink: 0;
+    }
+    .zoom-button:hover, .center-button:hover, .help-button:hover, .fullscreen-button:hover {
+      background: hsl(51, 0%, 20%);
+    }
+    .zoom-in::before, .zoom-in::after {
+      content: "";
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: hsl(51, 13%, 77%);
+      border-radius: 2px;
+    }
+    .zoom-in::before { width: 10px; height: 1px; }
+    .zoom-in::after  { width: 1px;  height: 10px; }
+    .zoom-out::after {
+      content: "";
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px; height: 1px;
+      border-radius: 2px;
+      background-color: hsl(51, 13%, 77%);
+    }
+    .zoom-slider {
+      width: var(--controls-height);
+      height: 56px;
+      background: var(--bg-black-transparent);
+      border-radius: var(--inner-border-radius);
+      backdrop-filter: blur(5px);
+      border: 1px solid var(--button-border) !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .zoom-track {
+      width: 1px;
+      height: 36px;
+      background: hsl(51, 13%, 40%);
+      position: relative;
+    }
+    .zoom-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 5px;
+      height: 5px;
+      background: hsl(51, 13%, 77%);
+      border-radius: 50%;
+    }
+
+    /* ── Fragment navigator (prev/next) ── */
+    .fragment-navigator {
+      position: fixed;
+      bottom: 40px;
+      left: calc(100vw - var(--content-container-width) - var(--content-container-margin) - var(--controls-height) * 2 - 12px);
+      z-index: 1001;
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+    }
+    .fragment-button {
+      width: var(--controls-height);
+      height: var(--controls-height);
+      border-radius: var(--inner-border-radius);
+      background: var(--bg-black-transparent);
+      backdrop-filter: blur(5px);
+      border: 1px solid var(--button-border) !important;
+      font-size: 0;
+      position: relative;
+    }
+    .prev-fragment::after { content: "←"; }
+    .next-fragment::after { content: "→"; }
+    .prev-fragment::after, .next-fragment::after {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--font-sans);
+      color: hsl(51, 13%, 77%);
+      font-size: 14px;
+      font-weight: 300;
+      margin-top: -1px;
+    }
+
+    /* ── Content container ── */
+    .content-container {
+      padding: 60px var(--content-container-margin) 100px;
+    }
+    @media (max-width: 768px) {
+      .content-container {
+        padding: calc(var(--content-container-margin) * 2);
+        padding-bottom: calc(var(--content-container-margin) + var(--margin) * 2);
+      }
+    }
+    .content-container article {
+      width: var(--content-width);
+    }
+    @media (max-width: 768px) {
+      .content-container article { width: 100%; }
+    }
+
+    /* ── Article header ── */
+    .template-reference article header h2,
+    .template-archive article header h2 {
+      font-family: var(--font-sans);
+      font-size: var(--size-s);
+      line-height: var(--line-s);
+      letter-spacing: 0.075em;
+      text-transform: uppercase;
+      color: var(--text-black);
+      margin-bottom: var(--text-margin);
+    }
+    .template-reference article header h3,
+    .template-archive article header h3 {
+      font-family: var(--font-sans);
+      font-size: var(--size-l);
+      line-height: var(--line-l);
+      letter-spacing: 0em;
+      color: var(--text-black);
+    }
+
+    /* ── Metadata section ── */
+    .metadata {
+      margin-top: var(--margin);
+    }
+    .metadata ul li {
+      display: flex;
+      flex-direction: row;
+      border-top: 1px solid var(--border-off-white);
+    }
+    .metadata ul li:last-child {
+      border-bottom: 1px solid var(--border-off-white);
+    }
+    .metadata-title {
+      font-family: var(--font-sans);
+      font-size: var(--size-s);
+      line-height: var(--line-s);
+      letter-spacing: 0.075em;
+      text-transform: uppercase;
+      flex: 0 0 120px;
+      padding: calc(var(--line-s) / 6) var(--column-gap) calc(var(--line-s) / 6) 0;
+      color: var(--text-black);
+    }
+    .metadata-content {
+      font-family: var(--font-sans);
+      font-size: var(--size-m);
+      line-height: var(--line-m);
+      flex: 1;
+      padding: calc(var(--line-s) / 6) 0 calc(var(--line-s) / 6) var(--column-gap);
+      color: var(--text-black);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    /* ── Description / preview sections ── */
+    .content-container article > section + section {
+      padding-top: var(--margin);
+      border-top: 1px solid var(--border-off-white);
+      margin-top: var(--margin);
+    }
+    .content-container article section h3 {
+      font-family: var(--font-sans);
+      font-size: var(--size-s);
+      line-height: var(--line-s);
+      letter-spacing: 0.075em;
+      text-transform: uppercase;
+      color: var(--text-black);
+      margin-bottom: var(--text-margin);
+    }
+    .content-container article section p,
+    .content-container article section .body-text {
+      font-family: var(--font-sans);
+      font-size: var(--size-m);
+      line-height: var(--line-m);
+      color: var(--text-black);
+    }
+    section.preview p {
+      font-family: var(--font-sans);
+      font-size: var(--size-s);
+      line-height: var(--line-s);
+      color: var(--text-grey);
+      margin-top: var(--margin);
+    }
+    section.preview p a {
+      color: var(--text-grey);
+      text-decoration: underline;
+      text-decoration-color: var(--text-light-grey);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.2em;
+    }
+    section.description h3 {
+      display: none;
+    }
+    section.description p + p {
+      margin-top: var(--text-margin);
+    }
+    .caption-ar {
+      direction: rtl;
+      text-align: right;
+      margin-top: var(--text-margin);
+      color: var(--text-grey);
+      font-size: var(--size-s);
+      line-height: var(--line-s);
+      font-family: var(--font-sans);
+    }
+
+    /* ── Media / figure ── */
+    section.media {
+      /* inherits section + section spacing */
+    }
+    section.media figure img {
+      width: 100%;
+      height: auto;
+      border-radius: var(--inner-border-radius);
+    }
+    section.media figcaption {
+      margin-top: var(--text-margin);
+    }
+    section.media figcaption p {
+      font-family: var(--font-sans);
+      font-size: var(--size-s);
+      line-height: var(--line-s);
+      color: var(--text-grey);
+    }
+
+    /* ── Archive list ── */
+    .archive-list {
+      margin-top: var(--margin);
+    }
+    .archive-small > h3 + .archive-list {
+      margin-top: var(--text-margin);
+    }
+    .archive-entry + li {
+      padding-top: 0;
+    }
+    .archive-entry a {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: var(--column-gap);
+      padding: calc(var(--text-margin) * 0.6) 0;
+      text-decoration: none;
+      color: var(--text-black);
+      border-top: 1px solid var(--border-off-white);
+      position: relative;
+    }
+    .archive-entry:last-child a {
+      border-bottom: 1px solid var(--border-off-white);
+    }
+    .archive-entry a:hover { color: #fbfa00; }
+    .archive-entry a:hover h4,
+    .archive-entry a:hover .archive-meta { color: #fbfa00; }
+    .archive-thumb {
+      width: 56px;
+      height: 56px;
+      flex-shrink: 0;
+      object-fit: cover;
+      background: var(--border-off-white);
+    }
+    .archive-column { flex: 1; min-width: 0; }
+    .archive-column.archive-meta {
+      flex: 0 0 120px;
+      display: flex;
+      align-items: flex-start;
+      padding-top: 2px;
+    }
+    .archive-entry h4 {
+      font-family: var(--font-sans);
+      font-size: var(--size-m);
+      line-height: var(--line-m);
+      color: var(--text-black);
+      position: relative;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .archive-entry h5 {
+      font-family: var(--font-mono);
+      font-size: var(--size-s);
+      line-height: var(--line-s);
+      color: var(--text-grey);
+      margin-top: calc(var(--text-margin) * 0.25);
+    }
+    .category {
+      font-family: var(--font-sans);
+      font-size: var(--size-s);
+      line-height: var(--line-s);
+      letter-spacing: 0.075em;
+      text-transform: uppercase;
+      color: var(--text-grey);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 5px;
+    }
+    li[data-category="reference"] .category::after,
+    .category.cat-reference::after {
+      content: "";
+      display: inline-block;
+      width: 8px; height: 8px;
+      border: 1px solid var(--text-grey);
+      transform: rotate(45deg);
+    }
+    li[data-category="modern"] .category::after,
+    .category.cat-modern::after {
+      content: "";
+      display: inline-block;
+      width: 9px; height: 9px;
+      border: 1px solid var(--text-grey);
+      border-radius: 50%;
+    }
+    li[data-category="ad"] .category::after,
+    .category.cat-ad::after {
+      content: "";
+      display: inline-block;
+      width: 8px; height: 8px;
+      border: 1px solid var(--text-grey);
+    }
+    li[data-category="professional"] .category::after,
+    .category.cat-professional::after {
+      content: "";
+      display: inline-block;
+      width: 8px; height: 8px;
+      border: 1px solid var(--text-grey);
+      border-radius: 2px;
+    }
+
+    /* ── Back button ── */
+    .back-link {
+      font-family: var(--font-sans);
+      font-size: var(--size-s);
+      line-height: var(--line-s);
+      letter-spacing: 0.075em;
+      text-transform: uppercase;
+      color: var(--text-grey);
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 0;
+      margin-bottom: var(--text-margin);
+      display: inline-block;
+    }
+    .back-link::before { content: "← "; }
+    .back-link:hover { color: var(--text-black); }
+
+    /* ── Views ── */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* ── Category filter bar ── */
+    .filter-bar {
+      position: fixed;
+      bottom: 28px;
+      left: 28px;
+      z-index: 1001;
+      display: flex;
+      align-items: stretch;
+      background: hsla(40, 8%, 9%, 0.97);
+      border: 1px solid hsla(51, 13%, 72%, 0.35);
+      border-radius: 3px;
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+      box-shadow: 0 2px 18px hsla(0,0%,0%,0.45);
+    }
+    .filter-icon-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      border-right: 1px solid hsla(51, 13%, 72%, 0.28);
+      color: hsla(51, 13%, 77%, 0.55);
+      cursor: default;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .filter-icon-cell svg {
+      width: 15px;
+      height: 15px;
+      display: block;
+    }
+    .filter-btn {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: hsla(51, 13%, 77%, 0.55);
+      background: none;
+      border: none !important;
+      border-right: 1px solid hsla(51, 13%, 72%, 0.28) !important;
+      border-radius: 0;
+      padding: 14px 22px;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+      white-space: nowrap;
+      position: relative;
+    }
+    .filter-btn:last-child {
+      border-right: none !important;
+    }
+    .filter-section-label {
+      display: flex;
+      align-items: center;
+      padding: 0 11px;
+      font-family: var(--font-mono);
+      font-size: 7.5px;
+      letter-spacing: 0.17em;
+      text-transform: uppercase;
+      color: hsla(51, 13%, 77%, 0.28);
+      cursor: default;
+      user-select: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .filter-section-label--sep {
+      border-left: 1px solid hsla(51, 13%, 72%, 0.4);
+      margin-left: 2px;
+    }
+    .filter-btn:hover {
+      color: hsla(51, 13%, 88%, 0.9);
+      background: hsla(51, 13%, 77%, 0.06);
+    }
+    .filter-btn.active {
+      color: hsla(51, 20%, 95%, 1);
+      background: hsla(51, 13%, 77%, 0.09);
+    }
+    .filter-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 22px;
+      right: 22px;
+      height: 1.5px;
+      background: hsla(51, 13%, 77%, 0.7);
+      border-radius: 1px;
+    }
+    .vis-node--hidden {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      animation: none !important;
+      transition: opacity 0.3s;
+    }
+    .vis-node {
+      transition: opacity 0.3s;
+    }
+    #mag-lines {
+      position: absolute;
+      top: 0; left: 0;
+      pointer-events: none;
+      transition: opacity 0.45s;
+      overflow: visible;
+    }
+    #mag-lines.faded { opacity: 0; }
+
+
+    /* ── Hover info panel ── */
+    #hover-panel {
+      position: fixed;
+      z-index: 500;
+      width: 180px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    #hover-panel.visible { opacity: 1; }
+    .hp-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 10px 0;
+      border-top: 1px solid hsla(0,0%,100%,0.10);
+    }
+    .hp-row:first-child { border-top: none; padding-top: 0; }
+    .hp-label {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: hsla(0,0%,100%,0.40);
+    }
+    .hp-value {
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 300;
+      font-size: 14px;
+      color: hsla(0,0%,100%,0.55);
+      line-height: 1.25;
+    }
+
+    /* ── Right-click context menu ── */
+    .ctx-menu {
+      position: fixed;
+      display: none;
+      z-index: 9999;
+      min-width: 230px;
+      background: hsla(220, 6%, 11%, 0.97);
+      border: 1px solid hsla(0,0%,100%,0.11);
+      border-radius: 0;
+      box-shadow: 0 12px 40px hsla(0,0%,0%,0.55), 0 2px 8px hsla(0,0%,0%,0.35);
+      backdrop-filter: blur(24px);
+      padding: 5px;
+      font-family: var(--font-mono);
+      user-select: none;
+    }
+    .ctx-sep {
+      height: 1px;
+      background: hsla(0,0%,100%,0.08);
+      margin: 3px 0;
+    }
+    .ctx-group-label {
+      font-size: 8px;
+      letter-spacing: 0.17em;
+      text-transform: uppercase;
+      color: hsla(0,0%,100%,0.22);
+      padding: 7px 12px 3px;
+    }
+    .ctx-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 12px;
+      font-size: 11.5px;
+      color: hsla(51,13%,88%,0.82);
+      border-radius: 0;
+      border-bottom: 1px solid hsla(0,0%,100%,0.07);
+      cursor: pointer;
+      transition: background 0.08s, color 0.08s;
+      letter-spacing: 0.03em;
+    }
+    .ctx-item:last-child {
+      border-bottom: none;
+    }
+    .ctx-item:hover {
+      background: hsla(51,13%,77%,0.12);
+      color: hsla(51,13%,96%,1);
+    }
+    .ctx-dot { display: none; }
+    .ctx-item--none {
+      color: hsla(0,0%,100%,0.28);
+      cursor: default;
+      font-style: italic;
+    }
+    .ctx-item--none:hover {
+      background: none;
+      color: hsla(0,0%,100%,0.28);
+    }
+    .ctx-item--active {
+      color: hsla(51,13%,96%,1);
+    }
+    .ctx-item--active .ctx-dot {
+      background: hsla(51,13%,85%,0.9);
+    }
+    .ctx-item--active::after {
+      content: '✓';
+      margin-left: auto;
+      font-size: 10px;
+      color: hsla(51,13%,77%,0.7);
+    }
+
+    /* ── INDEX trigger button (top-left) ── */
+    #index-btn {
+      position: fixed;
+      top: 20px;
+      left: 24px;
+      z-index: 1002;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: hsla(40, 8%, 9%, 0.95);
+      border: 1px solid hsla(51, 13%, 72%, 0.35);
+      border-radius: 3px;
+      backdrop-filter: blur(14px);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: hsla(51, 13%, 77%, 0.75);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    #index-btn:hover {
+      color: hsla(51, 13%, 96%, 1);
+      border-color: hsla(51, 13%, 72%, 0.65);
+    }
+
+    /* ── INDEX page (slides in from left) ── */
+    .index-page {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      background: #F0E7D2;
+      color: #9D8434;
+      transform: translateX(-100%);
+      transition: transform 0.55s var(--fast-easing);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      font-family: var(--font-mono);
+    }
+    .index-page.open { transform: translateX(0); }
+
+    .idx-nav {
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      padding: 28px 56px 0;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .idx-link {
+      color: #9D8434;
+      background: none;
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      padding: 0;
+    }
+    .idx-link:hover { color: #6A5722; }
+    .idx-link.active { color: #6A5722; }
+
+    .idx-hero {
+      position: absolute;
+      top: 22px;
+      right: 56px;
+      width: 130px;
+    }
+    .idx-hero .idx-thumb-box { aspect-ratio: 5 / 7; }
+
+    .idx-thumbs {
+      position: absolute;
+      left: 56px;
+      top: 200px;
+      width: 180px;
+    }
+    .idx-thumb { margin-bottom: 36px; }
+    .idx-thumb-box {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #E5D6A8;
+      border: 1px solid rgba(157,132,52,0.25);
+      overflow: hidden;
+      position: relative;
+    }
+    .idx-thumb-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: sepia(0.55) saturate(0.6) brightness(1.05) contrast(0.95);
+      mix-blend-mode: multiply;
+      display: block;
+    }
+    .idx-thumb-label {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      margin-top: 8px;
+      color: #9D8434;
+    }
+
+    .idx-table-wrap {
+      margin-left: 280px;
+      padding: 180px 56px 100px;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .idx-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .idx-table th {
+      text-align: left;
+      font-weight: normal;
+      padding: 12px 0;
+      border-bottom: 1px solid #9D8434;
+      letter-spacing: 0.14em;
+      color: #9D8434;
+    }
+    .idx-table th:last-child { text-align: right; }
+    .idx-table td {
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(157,132,52,0.30);
+      color: #9D8434;
+      vertical-align: top;
+    }
+    .idx-table td:last-child { text-align: right; }
+    .idx-table tr.idx-row { cursor: pointer; }
+    .idx-table tr.idx-row:hover td { color: #6A5722; }
+    .idx-arrow {
+      display: inline-block;
+      width: 14px;
+      opacity: 0;
+      margin-right: 4px;
+    }
+    .idx-row:hover .idx-arrow { opacity: 1; }
+    .idx-ref-cell { position: relative; }
+    .idx-row:hover .idx-ref-text::before {
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: -2px; bottom: -2px;
+      right: -8px;
+      border: 1px solid rgba(157,132,52,0.65);
+      pointer-events: none;
+    }
+    .idx-row:hover .idx-ref-text {
+      position: relative;
+      display: inline-block;
+      padding: 0 4px;
+    }
+
+    @media (max-width: 900px) {
+      .idx-thumbs, .idx-hero { display: none; }
+      .idx-table-wrap { margin-left: 0; padding: 100px 24px 60px; }
+      .idx-nav { padding: 20px 24px 0; gap: 24px; flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SVG filters (duotone + grain, same as apossible.com) ── -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none;position:absolute;">
+  <defs>
+    <filter id="duotone" color-interpolation-filters="sRGB" x="0%" y="0%" width="100%" height="100%">
+      <feColorMatrix in="SourceGraphic" result="duotone" type="matrix" values="
+        0.55 0 0 0 0.42
+        0 0.68 0 0 0.25
+        0 0 0.78 0 0.08
+        0 0 0 1 0" />
+      <feTurbulence type="turbulence" baseFrequency="0.8" numOctaves="1" result="noise" />
+      <feComposite in="duotone" in2="noise" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="noisy" />
+    </filter>
+  </defs>
+</svg>
+
+<!-- ── Visualisation: dark canvas ── -->
+<div class="visualisation">
+  <div class="vis-map" id="vis-map"></div>
+</div>
+
+<div id="hover-panel">
+  <div class="hp-row">
+    <span class="hp-label">Category</span>
+    <span class="hp-value" id="hp-cat">—</span>
+  </div>
+  <div class="hp-row">
+    <span class="hp-label">Magazine</span>
+    <span class="hp-value" id="hp-mag">—</span>
+  </div>
+  <div class="hp-row">
+    <span class="hp-label">Country</span>
+    <span class="hp-value" id="hp-country">—</span>
+  </div>
+</div>
+
+
+
+
+<script>
+const entries = [ // kept for future use
+  { image: "kawakib_0001.jpg", folder: "Al-Kawakib", category: "The Borrowed Image", captionAr: "في هذا العدد: ان هوليود تمر بمحنة جديدة انها محنة الافلام الفاسدة.", captionEn: "In this issue: Hollywood is going through a new ordeal — the ordeal of corrupt films.", gapType: "Redirected", notes: "Image shows Western-style glamour while caption critiques Hollywood corruption" },
+  { image: "kawakib_0002.jpg", folder: "Al-Kawakib", category: "The Modern Face", captionAr: "شجرة الزيتون :بقلم محمد كامل حسن المحامي", captionEn: "The Olive Tree — by Mohamed Kamel Hassan, Attorney", gapType: "Redirected", notes: "" },
+  { image: "kawakib_0003.jpg", folder: "Al-Kawakib", category: "The Advertisement", captionAr: "حدث هذا الاسبوع: فصلي فستانك على احدث الموديلات ومعه حزام جلد وزجاجة رائحة هدية ٨٠ عند فستان جميل.", captionEn: "This happened this week: Have your dress tailored in the latest styles — with a leather belt and a bottle of perfume as a gift.", gapType: "Promoted", notes: "Two captions on one page: a fashion ad and a cartoon joke" },
+  { image: "kawakib_0004.jpg", folder: "Al-Kawakib", category: "The Advertisement", captionAr: "سلكات افصل صابون للحمام والتواليت. تصوري لكل سيجارة لون/كوكتيل سجاير / السيجارة المفضلة لكل حسناء", captionEn: "Selkat — the finest soap for the bathroom and toilet. Imagine — every cigarette has a color / Cocktail Cigarettes / The favorite cigarette of every beautiful woman.", gapType: "Match", notes: "Two ads on one page: soap and cigarettes, both sold through women" },
+  { image: "kawakib_0005.jpg", folder: "Al-Kawakib", category: "The Advertisement", captionAr: "للانيقات لكل سيجارة لون بلائم لون فستانك", captionEn: "For the elegant — every cigarette has a color that matches the color of your dress.", gapType: "Match", notes: "Continuation of Cocktail Cigarettes campaign" },
+  { image: "kawakib_0006.jpg", folder: "Al-Kawakib", category: "The Modern Face", captionAr: "اختي العربية الناهضة في كل مكان في الشرق / مع حواء / زفاف مرجريت وحريتها", captionEn: "My Arab Sister Rising Everywhere in the East / With Eve [women's column] / The Wedding of Margaret and Her Freedom", gapType: "Promoted", notes: "Individual woman elevated to symbol of Arab renaissance; wedding paired with freedom" },
+  { image: "kawakib_0007.jpg", folder: "Al-Kawakib", category: "The Modern Face", captionAr: "شباب ورياضة/ كل سيدة انيقة تحرص ان تكون فساتينها ملائمة لكل انواع نشاطتها اليومية", captionEn: "Youth and Sports / Every elegant lady makes sure her dresses are suited to all types of her daily activities.", gapType: "Redirected", notes: "Sports section header used to redirect into fashion/wardrobe advice" },
+  { image: "kawakib_0008.jpg", folder: "Al-Kawakib", category: "The Advertisement", captionAr: "هذه المجموعة من الفساتين البسيطة اخترناها لك من طراز جميل ويمكن تصميمها من الاقمشة العملية", captionEn: "We have selected for you this collection of simple dresses of a beautiful style.", gapType: "Match", notes: "" },
+  { image: "kawakib_0009.jpg", folder: "Al-Kawakib", category: "The Modern Face", captionAr: "انتهى الصيف الجميل", captionEn: "The beautiful summer has ended.", gapType: "Redirected", notes: "Woman used as symbol of seasonal melancholy" },
+  { image: "kawakib_0011.jpg", folder: "Al-Kawakib", category: "The Modern Face", captionAr: "خدعني زوجي/ غدا الاحد بسينيما ريتس (عريس مراتي) / زيني بيتك بالقواقع", captionEn: "My husband deceived me / Tomorrow Sunday at Ritz Cinema: My Wife's Groom / Decorate your home with seashells.", gapType: "Redirected", notes: "Three unrelated captions: marital story, film ad, home craft tip" },
+  { image: "kawakib_0012.jpg", folder: "Al-Kawakib", category: "The Professional", captionAr: "احذروا هذه النجمة اسمها هايا وبلدها اسرائيل وهدفها هوليود", captionEn: "Beware of this star — her name is Haya, her country is Israel, and her goal is Hollywood.", gapType: "Corrected", notes: "Glamorous actress image weaponized as political warning; visual admiration undercut by nationalist caption" },
+  { image: "kawakib_0013.jpg", folder: "Al-Kawakib", category: "The Modern Face", captionAr: "شبابنا يخشا الجامعات / كانت زوجتي تنتهز وجود اقاربي من الريفين لتحدث والدتها واخوتها بالفرنسية", captionEn: "Our youth fear universities / My wife used to seize the opportunity of having my rural relatives present to speak to her mother and brothers in French.", gapType: "Redirected", notes: "French used as social performance in front of rural relatives — modernity as class display" },
+  { image: "kawakib_0014.jpg", folder: "Al-Kawakib", category: "The Professional", captionAr: "جذوة تحت الرماد بقلم صوفي عبدالله", captionEn: "An Ember Under the Ashes — by Sophie Abdullah.", gapType: "Promoted", notes: "Woman writer; title metaphor of hidden fire — image carries suppressed resilience" },
+  { image: "kawakib_0017.jpg", folder: "Al-Kawakib", category: "The Professional", captionAr: "هوليود تستسلم لاسراىيل، من سلاح اسراىيل البحري الى هوليود قصة استر الذي خطبها بن هور", captionEn: "Hollywood surrenders to Israel / From the Israeli navy to Hollywood / The story of Esther who was engaged to Ben-Hur.", gapType: "Corrected", notes: "Pair with kawakib_0012: Israeli actresses framed as political threat; glamour weaponized as warning" },
+  { image: "kawakib_0018.jpg", folder: "Al-Kawakib", category: "The Professional", captionAr: "هايا او استر مع خطيبها بن هود (شارلتون هوستون في الفلم الذي يحمل اسمه", captionEn: "Haya or Esther with her fiancé Ben-Hur (Charlton Heston in the film that bears his name).", gapType: "Corrected", notes: "Third in series (0012, 0017, 0018): military uniform to swimsuit — female body as both national tool and Hollywood threat" },
+  { image: "kawakib_0019.jpg", folder: "Al-Kawakib", category: "The Professional", captionAr: "هند تقول لاحسان: كرهتها من اجل زوجها، انكرها ابوها، احببت..ومرتين وفشلت", captionEn: "Hind tells Ihsan: I hated her for her husband's sake, her father denied her, I loved... twice and failed.", gapType: "Redirected", notes: "Serialized emotional drama alongside cultural elite gathering — two registers on one page" },
+  { image: "kawakib_0022.jpg", folder: "Al-Kawakib", category: "The Advertisement", captionAr: "بشرتك الناعمة لا يصلح لها الا صابون سلكت / وحياتك يا اخويا تخليني اتعلم الموسيقى", captionEn: "For your soft skin, nothing suits it but Selkat soap.", gapType: "Match", notes: "Selkat soap ad (3rd appearance); woman's skin as product surface" },
+  { image: "kawakib_0023.jpg", folder: "Al-Kawakib", category: "The Modern Face", captionAr: "اكاذيب وحقاىف", captionEn: "Lies and Truths.", gapType: "Promoted", notes: "Woman's image made to carry a piece on deception vs. reality — visual and concept in productive tension" },
+  { image: "mawed_0002.jpg", folder: "Al-Mawed", category: "The Borrowed Image", captionAr: "ابتعد عن انيتا اكبرغ والا انتظر الموت", captionEn: "Stay away from Anita Ekberg or await death.", gapType: "Corrected", notes: "Anita Ekberg (La Dolce Vita); Western glamour reframed as romantic danger" },
+  { image: "mawed_0003.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "انا بحبك يا مصطفى", captionEn: "I love you, Mustafa.", gapType: "Match", notes: "Possibly ref. to Bob Azzam 1960 hit song; woman as voice of romantic feeling" },
+  { image: "mawed_0004.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "قلب سعاد حسني، قلب الموجي وقلب العطار", captionEn: "The heart of Soad Hosny, the heart of Al-Mawji, and the heart of Al-Attar.", gapType: "Promoted", notes: "Soad Hosny (Cinderella of Egyptian cinema) — she is the axis, men's hearts orbit her" },
+  { image: "mawed_0005.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "الرقص فن والتمثيل موهبة والزواج مصيبة والحب... يا ساتر", captionEn: "Dancing is an art, acting is a talent, marriage is a calamity, and love… God protect us.", gapType: "Promoted", notes: "Comic hierarchy — professional excellence at top, marriage disaster, love unspeakable; dry social critique" },
+  { image: "mawed_0006.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "هنري تورو: كاتب انساني عالمي", captionEn: "Henry Thoreau: a universal humanist writer who lifted the veil on many of our moral and intellectual flaws.", gapType: "Redirected", notes: "Woman used as visual hook for Thoreau book ad — her image sells moral philosophy" },
+  { image: "mawed_0007.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "لم اتزوج لنداء الحب ولكن طلبا للراجة", captionEn: "I did not marry for the call of love, but in pursuit of rest.", gapType: "Promoted", notes: "Frank rejection of romantic marriage ideology — pragmatic honesty as quiet resistance" },
+  { image: "mawed_0009.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "تفاصيل مثيرة عن زواج ليلى فوزي و جلال معوض", captionEn: "Exciting details about the marriage of Layla Fawzy and Jalal Muawwad — the bride's father falls ill, and the groom's ex-wife files for alimony.", gapType: "Redirected", notes: "Actress Layla Fawzy; professional image redirected into tabloid wedding drama" },
+  { image: "mawed_0010.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "لبنى عبد العزيز: النجمة التي خلقت من المنتج مخرجا", captionEn: "Lobna Abdel Aziz: The star who turned the producer into a director.", gapType: "Promoted", notes: "Actress as creative force — she remakes a man's identity; power hidden behind the star image" },
+  { image: "mawed_0012.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "قلب زبيرة ثروت يخفق بحب عبد الحليم", captionEn: "Zubayra Tharwat's heart beats with love for Abdel Halim / Salah Dhul-Fiqar divorces Zahra Al-Ala.", gapType: "Redirected", notes: "Four professional women (actress/singer) reduced entirely to romantic/marital status; careers invisible" },
+  { image: "mawed_0014.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "الوسط السينيماى في القاهرة لم يشهد فترة كتلك التي مر بها فترة مشحونة بالحب", captionEn: "The cinema world in Cairo has never witnessed a period as charged with love as the one it is going through.", gapType: "Promoted", notes: "Individual woman elevated to embody an entire era of cinematic romance in Cairo" },
+  { image: "mawed_0015.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "نصف زوجة", captionEn: "Half a wife.", gapType: "Corrected", notes: "Visual wholeness undone by caption — woman made a fraction; likely polygamy or secondary marriage" },
+  { image: "mawed_0017.jpg", folder: "Al-Mawed", category: "The Borrowed Image", captionAr: "بلاد الهاراكيري تنافس هوليود / الفلم الياباني يمد لسانه لهوليود", captionEn: "The land of hara-kiri competes with Hollywood / Japanese film sticks its tongue out at Hollywood.", gapType: "Promoted", notes: "Japanese woman's image made to embody national cinema defiance against Hollywood" },
+  { image: "mawed_0018.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "عدسة العروس في المهرجان الاسيوي الافريقي للسينيما", captionEn: "The bride's lens at the Asian-African Cinema Festival.", gapType: "Promoted", notes: "Bandung-era Asian-African solidarity; woman's image at international political-cultural festival" },
+  { image: "mawed_0019.jpg", folder: "Al-Mawed", category: "The Advertisement", captionAr: "افلام حلمي رقلة تقدم لحن السعادة", captionEn: "Helmy Raqla Films presents: The Melody of Happiness.", gapType: "Match", notes: "Film promotional still; woman as advertisement for cinema" },
+  { image: "mawed_0020.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "ملوك الفرفشة لا يعرفون الضحك", captionEn: "The kings of fun don't know how to laugh.", gapType: "Corrected", notes: "Paradox: entertainers who produce joy are themselves joyless; smile in image undercut by caption" },
+  { image: "mawed_0021.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "حكايات فنية ام كلثوم والخوف", captionEn: "Artistic tales: Umm Kulthum and fear.", gapType: "Corrected", notes: "Umm Kulthum — icon of Arab power — paired with fear; monumental image made vulnerable" },
+  { image: "mawed_0024.jpg", folder: "Al-Mawed", category: "The Borrowed Image", captionAr: "لوكريس بورجيا اغرب رواية عرفتها تاريخ البشرية", captionEn: "Lucrezia Borgia — the strangest story humanity has ever known.", gapType: "Promoted", notes: "Western historical figure (Borgia) borrowed for Arab readers; woman as embodiment of historical scandal" },
+  { image: "mawed_0025.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "نصف عمري في السرير، جاكلين بلا قميص نوم", captionEn: "Half my life in bed / Jacqueline without a nightgown.", gapType: "Corrected", notes: "Tabloid double: vulnerability (bed/illness) + voyeurism (celebrity undress); body as spectacle" },
+  { image: "mawed_0026.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "انها لا تنام قبل الساعة الثانية", captionEn: "She does not sleep before two o'clock.", gapType: "Promoted", notes: "Intimate detail elevated to define character — a woman of the night" },
+  { image: "mawed_0027.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "اخر صورة للثناىي الذي لاقى نجاح باهر في القاهرة", captionEn: "The last photo of the duo that achieved great success in Cairo.", gapType: "Promoted", notes: "Professional portrait becomes elegiac; success and ending in same caption" },
+  { image: "mawed_0028.jpg", folder: "Al-Mawed", category: "The Borrowed Image", captionAr: "الفيلم الاول ببطولة جين مانسفيلد مع زوجها مايك هارغيتي", captionEn: "The first film starring Jayne Mansfield with her husband Mickey Hargitay.", gapType: "Match", notes: "Jayne Mansfield — Hollywood bombshell exported to Arab readers; Western glamour borrowed" },
+  { image: "mawed_0029.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "افلام حلمي رقلة تقدم لاول مرة مريم فخر الدين و فريد شوقي", captionEn: "Helmy Raqla Films presents for the first time: Maryam Fakhr al-Din and Farid Shawqi.", gapType: "Match", notes: "Film promotional ad; Maryam Fakhr al-Din paired with Farid Shawqi" },
+  { image: "mawed_0030.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "التلقزيون / ادخل برنامج جديد اسمه بيني وبينك", captionEn: "Television / A new program has been introduced called Between You and Me.", gapType: "Promoted", notes: "Woman as face of new television medium; intimate address format — modernity through direct connection" },
+  { image: "mawed_0032.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "سوال للجمهور هل تخلع نجوى فواد بدلة الرقص لتحتفظ ب فواد حسن", captionEn: "A question for the public: Will Nagwa Fouad take off her dance costume to keep Fouad Hassan?", gapType: "Corrected", notes: "Nagwa Fouad asked to choose career vs man — dance costume as professional identity made contingent on love" },
+  { image: "mawed_0033.jpg", folder: "Al-Mawed", category: "The Advertisement", captionAr: "الفلم اللبناني العالمي حكم القدر", captionEn: "The Lebanese international film: The Judgment of Fate.", gapType: "Match", notes: "Lebanese film promotion; positioned as world-class cinema" },
+  { image: "mawed_0034.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "ذهبت راىحة البترول عن فساتين كريمة", captionEn: "The smell of oil has left Karima's dresses / A solitaire ring worth 10,000 pounds flew from her hand.", gapType: "Corrected", notes: "Woman surrounded by men's financial crimes and choices — oil wealth, eviction, divorce; she bears consequences of others" },
+  { image: "mawed_0035.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "ممنوع زواج مذيعات التلفزيون", captionEn: "Marriage is forbidden for female television presenters.", gapType: "Corrected", notes: "Professional access given, private life denied — modernity conditional on remaining unmarried" },
+  { image: "mawed_0036.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "الاستاذ ايميل دبغي، اتيحت له فرصة مشاهدة كواليس الفلم الكمدي ارض الصحاري", captionEn: "Professor Emil Dabghi was given the opportunity to watch the behind-the-scenes of the comedy film Land of Deserts.", gapType: "Redirected", notes: "Woman on film set; caption centers male observer — she is spectacle, he is gaze" },
+  { image: "mawed_0037.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "ما كادت المطربة الجزائرية وردة تنزل في مطار القاهرة حتى استقلت سيارتها الكاديلاك", captionEn: "No sooner had Algerian singer Warda landed at Cairo airport than she got into her Cadillac.", gapType: "Promoted", notes: "Meta-archival — a star searches this magazine for her own first image; Warda arriving; romance gossip; three registers at once" },
+  { image: "mawed_0038.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "حكايات النجوم", captionEn: "Stories of the Stars.", gapType: "Promoted", notes: "Section header — woman made face of all celebrity gossip, not just her own story" },
+  { image: "mawed_0040.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "في اوقات الفراغ", captionEn: "In leisure time.", gapType: "Match", notes: "Woman at rest — her leisure documented as worth seeing" },
+  { image: "mawed_0042.jpg", folder: "Al-Mawed", category: "The Advertisement", captionAr: "جديدة وانعم من اي وقت مضى مناشف كوتكس الصحية الجديدة", captionEn: "New and softer than ever — the new Kotex sanitary towels. With guaranteed effectiveness.", gapType: "Match", notes: "Kotex sanitary ad — most intimate product, most direct address to women through a woman's image" },
+  { image: "mawed_0043.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "اجمل اغاني الموسم لاشهر مطربي ومطربات العالم العربي على اسطوانات صوت الشرق PARLOPHONE", captionEn: "The most beautiful songs of the season / By the most famous singers of the Arab world / Voice of the East — PARLOPHONE.", gapType: "Match", notes: "Parlophone Voice of the East label — Arab musical excellence on British record; woman as face of Arab song" },
+  { image: "mawed_0045.jpg", folder: "Al-Mawed", category: "The Advertisement", captionAr: "اجمل فيلم لاجمل قصة عرفتها السينما المصرية من اجل حبي", captionEn: "The most beautiful film for the most beautiful story Egyptian cinema has ever known: For My Love.", gapType: "Match", notes: "Film promotional ad with superlatives; woman as face of the greatest love story" },
+  { image: "mawed_0046.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "عادت فساتين الدكلتي لجسد صباح", captionEn: "The decollete dresses have returned to Sabah's body.", gapType: "Promoted", notes: "Sabah's neckline treated as cultural news — the covering and uncovering of a woman's body as public event" },
+  { image: "mawed_0048.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "التلميذة", captionEn: "The Student.", gapType: "Match", notes: "Single word identity — woman as student; education as defining modern selfhood" },
+  { image: "mawed_0050.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "تفرج يا سلام على شاشة التلفزيون", captionEn: "Watch, oh my goodness, on the television screen!", gapType: "Promoted", notes: "Television as miracle; woman as its wondrous content — exclamation elevates her to spectacle" },
+  { image: "mawed_0053.jpg", folder: "Al-Mawed", category: "The Professional", captionAr: "بفكر في اللي ناسيني / هند رستم / شكري سرحان", captionEn: "I am thinking of the one who forgot me / Hind Rostom / Shoukry Sarhan.", gapType: "Promoted", notes: "Hind Rostom (Egypt's Marilyn Monroe) — bold actress given melancholy by film title; longing beneath the glamour" },
+  { image: "mawed_0054.jpg", folder: "Al-Mawed", category: "The Modern Face", captionAr: "ام كلثوم في عصر الصواريخ", captionEn: "Umm Kulthum in the age of rockets.", gapType: "Promoted", notes: "Ancient Arab voice placed in space age — tradition and technology in one woman" },
+  { image: "mawed_0057.jpg", folder: "Al-Mawed", category: "The Borrowed Image", captionAr: "مارلين مونرو في غرفة نوم عشيق جين مانسفيلد", captionEn: "Marilyn Monroe in the bedroom of Jayne Mansfield's lover.", gapType: "Corrected", notes: "Two Hollywood icons (Monroe + Mansfield) both reduced to a bedroom love triangle; glamour punctured by scandal" },
+];
+
+const IMAGE_DATA = {
+"kawakib_0001.jpg":{"w":1,"c":["The Borrowed Image"]},
+"kawakib_0002.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"kawakib_0003.jpg":{"w":1,"c":["The Advertisement"]},
+"kawakib_0004.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"kawakib_0005.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"kawakib_0006.jpg":{"w":1,"c":["The Professional","The Borrowed Image"]},
+"kawakib_0007.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"kawakib_0008.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"kawakib_0009.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"kawakib_0010.jpg":{"w":0,"c":[]},
+"kawakib_0011.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"kawakib_0012.jpg":{"w":1,"c":["The Borrowed Image"]},
+"kawakib_0013.jpg":{"w":1,"c":["The Borrowed Image"]},
+"kawakib_0014.jpg":{"w":1,"c":["The Borrowed Image"]},
+"kawakib_0015.jpg":{"w":0,"c":[]},
+"kawakib_0016.jpg":{"w":0,"c":[]},
+"kawakib_0017.jpg":{"w":1,"c":["The Modern Face"]},
+"kawakib_0018.jpg":{"w":1,"c":["The Borrowed Image"]},
+"kawakib_0019.jpg":{"w":1,"c":["The Borrowed Image"]},
+"kawakib_0020.jpg":{"w":1,"c":["The Traditional Body"]},
+"kawakib_0021.jpg":{"w":0,"c":[]},
+"kawakib_0022.jpg":{"w":1,"c":["The Advertisement"]},
+"kawakib_0023.jpg":{"w":1,"c":["The Borrowed Image"]},
+"CamScanner 18-05-2026 13.33_1.JPG":{"w":0,"c":[]},
+"CamScanner 18-05-2026 13.33_2.JPG":{"w":0,"c":[]},
+"CamScanner 18-05-2026 13.33_3.JPG":{"w":0,"c":[]},
+"CamScanner 18-05-2026 13.33_4.JPG":{"w":0,"c":[]},
+"CamScanner 18-05-2026 13.33_5.JPG":{"w":0,"c":[]},
+"CamScanner 18-05-2026 13.33_6.JPG":{"w":0,"c":[]},
+"CamScanner 18-05-2026 13.33_7.JPG":{"w":0,"c":[]},
+"CamScanner 18-05-2026 13.33_8.JPG":{"w":0,"c":[]},
+"CamScanner 18-05-2026 13.33_9.JPG":{"w":0,"c":[]},
+"الرسالة_1.JPG":{"w":0,"c":[]},
+"الرسالة_10.JPG":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"الرسالة_11.JPG":{"w":0,"c":[]},
+"الرسالة_12.JPG":{"w":0,"c":[]},
+"الرسالة_13.JPG":{"w":0,"c":[]},
+"الرسالة_14.JPG":{"w":1,"c":["The Advertisement"]},
+"الرسالة_15.JPG":{"w":0,"c":[]},
+"الرسالة_16.JPG":{"w":0,"c":[]},
+"الرسالة_17.JPG":{"w":0,"c":[]},
+"الرسالة_18.JPG":{"w":0,"c":[]},
+"الرسالة_19.JPG":{"w":0,"c":[]},
+"الرسالة_2.JPG":{"w":0,"c":[]},
+"الرسالة_20.JPG":{"w":1,"c":["The Traditional Body"]},
+"الرسالة_21.JPG":{"w":0,"c":[]},
+"الرسالة_22.JPG":{"w":0,"c":[]},
+"الرسالة_23.JPG":{"w":0,"c":[]},
+"الرسالة_24.JPG":{"w":0,"c":[]},
+"الرسالة_25.JPG":{"w":0,"c":[]},
+"الرسالة_26.JPG":{"w":0,"c":[]},
+"الرسالة_27.JPG":{"w":1,"c":["The Traditional Body"]},
+"الرسالة_28.JPG":{"w":0,"c":[]},
+"الرسالة_29.JPG":{"w":0,"c":[]},
+"الرسالة_3.JPG":{"w":0,"c":[]},
+"الرسالة_30.JPG":{"w":0,"c":[]},
+"الرسالة_31.JPG":{"w":0,"c":[]},
+"الرسالة_32.JPG":{"w":0,"c":[]},
+"الرسالة_33.JPG":{"w":0,"c":[]},
+"الرسالة_34.JPG":{"w":1,"c":["The Advertisement"]},
+"الرسالة_35.JPG":{"w":0,"c":[]},
+"الرسالة_36.JPG":{"w":0,"c":[]},
+"الرسالة_4.JPG":{"w":0,"c":[]},
+"الرسالة_5.JPG":{"w":0,"c":[]},
+"الرسالة_6.JPG":{"w":0,"c":[]},
+"الرسالة_7.JPG":{"w":0,"c":[]},
+"الرسالة_8.JPG":{"w":1,"c":["The Traditional Body"]},
+"الرسالة_9.JPG":{"w":0,"c":[]},
+"ethnayn_0001.jpg":{"w":0,"c":[]},
+"ethnayn_0002.jpg":{"w":1,"c":["The Professional"]},
+"ethnayn_0003.jpg":{"w":0,"c":[]},
+"ethnayn_0004.jpg":{"w":0,"c":[]},
+"ethnayn_0005.jpg":{"w":0,"c":[]},
+"ethnayn_0006.jpg":{"w":0,"c":[]},
+"ethnayn_0007.jpg":{"w":0,"c":[]},
+"ethnayn_0008.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn_0009.jpg":{"w":0,"c":[]},
+"ethnayn_0010.jpg":{"w":1,"c":["The Advertisement"]},
+"ethnayn_0011.jpg":{"w":0,"c":[]},
+"ethnayn_0012.jpg":{"w":0,"c":[]},
+"ethnayn_0013.jpg":{"w":0,"c":[]},
+"ethnayn_0014.jpg":{"w":1,"c":["The Advertisement"]},
+"ethnayn_0015.jpg":{"w":0,"c":[]},
+"ethnayn_0016.jpg":{"w":0,"c":[]},
+"ethnayn_0017.jpg":{"w":0,"c":[]},
+"ethnayn_0018.jpg":{"w":0,"c":[]},
+"ethnayn_0019.jpg":{"w":0,"c":[]},
+"ethnayn_0020.jpg":{"w":0,"c":[]},
+"ethnayn_0021.jpg":{"w":0,"c":[]},
+"ethnayn_0022.jpg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn_0023.jpg":{"w":0,"c":[]},
+"ethnayn_0024.jpg":{"w":0,"c":[]},
+"ethnayn_0025.jpg":{"w":0,"c":[]},
+"ethnayn_0026.jpg":{"w":0,"c":[]},
+"ethnayn_0027.jpg":{"w":0,"c":[]},
+"ethnayn_0028.jpg":{"w":0,"c":[]},
+"ethnayn_0029.jpg":{"w":0,"c":[]},
+"ethnayn_0030.jpg":{"w":0,"c":[]},
+"ethnayn_0031.jpg":{"w":0,"c":[]},
+"ethnayn_0032.jpg":{"w":0,"c":[]},
+"ethnayn_0033.jpg":{"w":0,"c":[]},
+"ethnayn_0034.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn_0035.jpg":{"w":0,"c":[]},
+"ethnayn_0036.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0001.jpg":{"w":0,"c":[]},
+"mawed_0002.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0003.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0004.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0005.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"mawed_0006.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0007.jpg":{"w":0,"c":[]},
+"mawed_0008.jpg":{"w":0,"c":[]},
+"mawed_0009.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0010.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0011.jpg":{"w":0,"c":[]},
+"mawed_0012.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0013.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0014.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0015.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0016.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0017.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0018.jpg":{"w":1,"c":["The Modern Face","The Professional"]},
+"mawed_0019.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0020.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0021.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0022.jpg":{"w":0,"c":[]},
+"mawed_0023.jpg":{"w":0,"c":[]},
+"mawed_0024.jpg":{"w":1,"c":["The Borrowed Image","The Advertisement"]},
+"mawed_0025.jpg":{"w":1,"c":["The Traditional Body","The Advertisement"]},
+"mawed_0026.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0027.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0028.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0029.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"mawed_0030.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0031.jpg":{"w":0,"c":[]},
+"mawed_0032.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0033.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0034.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0035.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0036.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0037.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"mawed_0038.jpg":{"w":1,"c":["The Modern Face","The Professional"]},
+"mawed_0039.jpg":{"w":0,"c":[]},
+"mawed_0040.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0041.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0042.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0043.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0044.jpg":{"w":0,"c":[]},
+"mawed_0045.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0046.jpg":{"w":1,"c":["The Borrowed Image","The Modern Face"]},
+"mawed_0047.jpg":{"w":0,"c":[]},
+"mawed_0048.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0049.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0050.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0051.jpg":{"w":0,"c":[]},
+"mawed_0052.jpg":{"w":0,"c":[]},
+"mawed_0053.jpg":{"w":1,"c":["The Borrowed Image","The Advertisement"]},
+"mawed_0054.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0055.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0056.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0057.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0058.jpg":{"w":1,"c":["The Professional","The Borrowed Image"]},
+"mawed_0059.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0060.jpg":{"w":0,"c":[]},
+"mawed_0061.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0062.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0063.jpg":{"w":1,"c":["The Professional","The Advertisement","The Borrowed Image"]},
+"mawed_0064.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0065.jpg":{"w":0,"c":[]},
+"mawed_0066.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0067.jpg":{"w":0,"c":[]},
+"mawed_0068.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0069.jpg":{"w":0,"c":[]},
+"mawed_0070.jpg":{"w":0,"c":[]},
+"mawed_0071.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0072.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0073.jpg":{"w":0,"c":[]},
+"mawed_0074.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0075.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0076.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0077.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"mawed_0078.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0079.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0080.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0081.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0082.jpg":{"w":1,"c":["The Modern Face","The Professional"]},
+"mawed_0083.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0084.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0085.jpg":{"w":1,"c":["The Borrowed Image","The Advertisement"]},
+"mawed_0086.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0087.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0088.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0089.jpg":{"w":1,"c":["The Modern Face","The Advertisement","The Traditional Body"]},
+"mawed_0090.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0091.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0092.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0093.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0094.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0095.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0096.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0097.jpg":{"w":0,"c":[]},
+"mawed_0098.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0099.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0100.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0101.jpg":{"w":0,"c":[]},
+"mawed_0102.jpg":{"w":0,"c":[]},
+"mawed_0103.jpg":{"w":1,"c":["The Modern Face","The Professional"]},
+"mawed_0104.jpg":{"w":0,"c":[]},
+"mawed_0105.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0106.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0107.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0108.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0109.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0110.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0111.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0112.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0113.jpg":{"w":0,"c":[]},
+"mawed_0114.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0115.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0116.jpg":{"w":1,"c":["The Modern Face","The Professional"]},
+"mawed_0117.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0118.jpg":{"w":1,"c":["The Borrowed Image","The Advertisement"]},
+"mawed_0119.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0120.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0121.jpg":{"w":0,"c":[]},
+"mawed_0122.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0123.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0124.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0125.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0126.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"mawed_0127.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0128.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0129.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0130.jpg":{"w":1,"c":["The Modern Face","The Professional"]},
+"mawed_0131.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0132.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0133.jpg":{"w":0,"c":[]},
+"mawed_0134.jpg":{"w":0,"c":[]},
+"mawed_0135.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0136.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0137.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0138.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0139.jpg":{"w":0,"c":[]},
+"mawed_0140.jpg":{"w":0,"c":[]},
+"mawed_0141.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0142.jpg":{"w":0,"c":[]},
+"mawed_0143.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0144.jpg":{"w":0,"c":[]},
+"mawed_0145.jpg":{"w":0,"c":[]},
+"mawed_0146.jpg":{"w":0,"c":[]},
+"mawed_0147.jpg":{"w":0,"c":[]},
+"mawed_0148.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0149.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0150.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0151.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0152.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0153.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0154.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0155.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0156.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0157.jpg":{"w":0,"c":[]},
+"mawed_0158.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0159.jpg":{"w":0,"c":[]},
+"mawed_0160.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0161.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0162.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0163.jpg":{"w":0,"c":[]},
+"mawed_0164.jpg":{"w":0,"c":[]},
+"mawed_0165.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0166.jpg":{"w":0,"c":[]},
+"mawed_0167.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0168.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"mawed_0169.jpg":{"w":0,"c":[]},
+"mawed_0170.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0171.jpg":{"w":1,"c":["The Modern Face","The Professional"]},
+"mawed_0172.jpg":{"w":0,"c":[]},
+"mawed_0173.jpg":{"w":0,"c":[]},
+"mawed_0174.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0175.jpg":{"w":0,"c":[]},
+"mawed_0176.jpg":{"w":0,"c":[]},
+"mawed_0177.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0178.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0179.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0180.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0181.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0182.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0183.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0184.jpg":{"w":0,"c":[]},
+"mawed_0185.jpg":{"w":0,"c":[]},
+"mawed_0186.jpg":{"w":1,"c":["The Professional","The Borrowed Image"]},
+"mawed_0187.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0188.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0189.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0190.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0191.jpg":{"w":0,"c":[]},
+"mawed_0192.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0193.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0194.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0195.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0196.jpg":{"w":0,"c":[]},
+"mawed_0197.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0198.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0199.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0200.jpg":{"w":0,"c":[]},
+"mawed_0201.jpg":{"w":1,"c":["The Professional","The Advertisement"]},
+"mawed_0202.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0203.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0204.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"mawed_0205.jpg":{"w":0,"c":[]},
+"mawed_0206.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0207.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0208.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0209.jpg":{"w":0,"c":[]},
+"mawed_0210.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"mawed_0211.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0212.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0213.jpg":{"w":0,"c":[]},
+"mawed_0214.jpg":{"w":0,"c":[]},
+"mawed_0215.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0216.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0217.jpg":{"w":0,"c":[]},
+"mawed_0218.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0219.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0220.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0221.jpg":{"w":1,"c":["The Professional"]},
+"mawed_0222.jpg":{"w":1,"c":["The Advertisement","The Professional"]},
+"mawed_0223.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0224.jpg":{"w":0,"c":[]},
+"mawed_0225.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0226.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0227.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0228.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0229.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0230.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"mawed_0231.jpg":{"w":0,"c":[]},
+"mawed_0232.jpg":{"w":0,"c":[]},
+"mawed_0233.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0234.jpg":{"w":1,"c":["The Traditional Body"]},
+"mawed_0235.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0236.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"mawed_0237.jpg":{"w":1,"c":["The Modern Face"]},
+"mawed_0238.jpg":{"w":1,"c":["The Modern Face","The Professional"]},
+"mawed_0239.jpg":{"w":0,"c":[]},
+"mawed_0240.jpg":{"w":0,"c":[]},
+"mawed_0241.jpg":{"w":1,"c":["The Borrowed Image"]},
+"mawed_0242.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0243.jpg":{"w":0,"c":[]},
+"mawed_0244.jpg":{"w":0,"c":[]},
+"mawed_0245.jpg":{"w":1,"c":["The Advertisement"]},
+"mawed_0246.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0001.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0002.jpg":{"w":0,"c":[]},
+"alam_0003.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0004.jpg":{"w":0,"c":[]},
+"alam_0005.jpg":{"w":1,"c":["The Advertisement","The Professional"]},
+"alam_0006.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0007.jpg":{"w":0,"c":[]},
+"alam_0008.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0009.jpg":{"w":1,"c":["The Professional","The Borrowed Image"]},
+"alam_0010.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"alam_0011.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0012.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0013.jpg":{"w":0,"c":[]},
+"alam_0014.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0015.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0016.jpg":{"w":0,"c":[]},
+"alam_0017.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0018.jpg":{"w":0,"c":[]},
+"alam_0019.jpg":{"w":1,"c":["The Advertisement","The Modern Face"]},
+"alam_0020.jpg":{"w":0,"c":[]},
+"alam_0021.jpg":{"w":0,"c":[]},
+"alam_0022.jpg":{"w":1,"c":["The Professional"]},
+"alam_0023.jpg":{"w":1,"c":["The Traditional Body"]},
+"alam_0024.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0025.jpg":{"w":1,"c":["The Traditional Body"]},
+"alam_0026.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0027.jpg":{"w":0,"c":[]},
+"alam_0028.jpg":{"w":1,"c":["The Traditional Body"]},
+"alam_0029.jpg":{"w":0,"c":[]},
+"alam_0030.jpg":{"w":0,"c":[]},
+"alam_0031.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"alam_0032.jpg":{"w":0,"c":[]},
+"alam_0033.jpg":{"w":0,"c":[]},
+"alam_0034.jpg":{"w":0,"c":[]},
+"alam_0035.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0036.jpg":{"w":1,"c":["The Modern Face","The Professional"]},
+"alam_0037.jpg":{"w":0,"c":[]},
+"alam_0038.jpg":{"w":0,"c":[]},
+"alam_0039.jpg":{"w":0,"c":[]},
+"alam_0040.jpg":{"w":0,"c":[]},
+"alam_0041.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0042.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0043.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0044.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0045.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0046.jpg":{"w":0,"c":[]},
+"alam_0047.jpg":{"w":1,"c":["The Modern Face","The Advertisement","The Borrowed Image"]},
+"alam_0048.jpg":{"w":1,"c":["The Advertisement","The Modern Face"]},
+"alam_0049.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0050.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0051.jpg":{"w":0,"c":[]},
+"alam_0052.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0053.jpg":{"w":0,"c":[]},
+"alam_0054.jpg":{"w":0,"c":[]},
+"alam_0055.jpg":{"w":0,"c":[]},
+"alam_0056.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0057.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0058.jpg":{"w":0,"c":[]},
+"alam_0059.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0060.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0061.jpg":{"w":1,"c":["The Traditional Body"]},
+"alam_0062.jpg":{"w":1,"c":["The Traditional Body"]},
+"alam_0063.jpg":{"w":0,"c":[]},
+"alam_0064.jpg":{"w":0,"c":[]},
+"alam_0065.jpg":{"w":0,"c":[]},
+"alam_0066.jpg":{"w":1,"c":["The Modern Face","The Professional"]},
+"alam_0067.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0068.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0069.jpg":{"w":1,"c":["The Professional"]},
+"alam_0070.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"alam_0071.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0072.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0073.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0074.jpg":{"w":0,"c":[]},
+"alam_0075.jpg":{"w":0,"c":[]},
+"alam_0076.jpg":{"w":0,"c":[]},
+"alam_0077.jpg":{"w":0,"c":[]},
+"alam_0078.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0079.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"alam_0080.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0081.jpg":{"w":0,"c":[]},
+"alam_0082.jpg":{"w":0,"c":[]},
+"alam_0083.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0084.jpg":{"w":0,"c":[]},
+"alam_0085.jpg":{"w":0,"c":[]},
+"alam_0086.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0087.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0088.jpg":{"w":1,"c":["The Professional"]},
+"alam_0089.jpg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"alam_0090.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0091.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0092.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"alam_0093.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0094.jpg":{"w":0,"c":[]},
+"alam_0095.jpg":{"w":0,"c":[]},
+"alam_0096.jpg":{"w":0,"c":[]},
+"alam_0097.jpg":{"w":0,"c":[]},
+"alam_0098.jpg":{"w":0,"c":[]},
+"alam_0099.jpg":{"w":0,"c":[]},
+"alam_0100.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0101.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0102.jpg":{"w":1,"c":["The Professional"]},
+"alam_0103.jpg":{"w":1,"c":["The Modern Face"]},
+"alam_0104.jpg":{"w":1,"c":["The Professional"]},
+"alam_0105.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0106.jpg":{"w":0,"c":[]},
+"alam_0107.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0108.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0109.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0110.jpg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"alam_0111.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0112.jpg":{"w":0,"c":[]},
+"alam_0113.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0114.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0115.jpg":{"w":0,"c":[]},
+"alam_0116.jpg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"alam_0117.jpg":{"w":1,"c":["The Advertisement","The Traditional Body"]},
+"alam_0118.jpg":{"w":1,"c":["The Professional"]},
+"alam_0119.jpg":{"w":1,"c":["The Traditional Body"]},
+"alam_0120.jpg":{"w":1,"c":["The Professional"]},
+"alam_0121.jpg":{"w":1,"c":["The Professional"]},
+"alam_0122.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0123.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0124.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0125.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0126.jpg":{"w":0,"c":[]},
+"alam_0127.jpg":{"w":0,"c":[]},
+"alam_0128.jpg":{"w":0,"c":[]},
+"alam_0129.jpg":{"w":0,"c":[]},
+"alam_0130.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0131.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0132.jpg":{"w":0,"c":[]},
+"alam_0133.jpg":{"w":0,"c":[]},
+"alam_0134.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0135.jpg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"alam_0136.jpg":{"w":1,"c":["The Traditional Body"]},
+"alam_0137.jpg":{"w":1,"c":["The Modern Face","The Advertisement","The Borrowed Image"]},
+"alam_0138.jpg":{"w":1,"c":["The Modern Face","The Advertisement","The Borrowed Image"]},
+"alam_0139.jpg":{"w":0,"c":[]},
+"alam_0140.jpg":{"w":1,"c":["The Advertisement"]},
+"alam_0141.jpg":{"w":0,"c":[]},
+"alam_0142.jpg":{"w":0,"c":[]},
+"alam_0143.jpg":{"w":1,"c":["The Borrowed Image"]},
+"alam_0144.jpg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0001.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0002.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0003.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0004.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0005.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0006.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0007.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0008.jpeg":{"w":0,"c":[]},
+"ethnayn2_0009.jpeg":{"w":1,"c":["The Modern Face","The Advertisement","The Borrowed Image"]},
+"ethnayn2_0010.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0011.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0012.jpeg":{"w":0,"c":[]},
+"ethnayn2_0013.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0014.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0015.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0016.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn2_0017.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0018.jpeg":{"w":0,"c":[]},
+"ethnayn2_0019.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0020.jpeg":{"w":1,"c":["The Advertisement","The Professional"]},
+"ethnayn2_0021.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0022.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0023.jpeg":{"w":0,"c":[]},
+"ethnayn2_0024.jpeg":{"w":1,"c":["The Modern Face","The Professional"]},
+"ethnayn2_0025.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0026.jpeg":{"w":0,"c":[]},
+"ethnayn2_0027.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn2_0028.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn2_0029.jpeg":{"w":0,"c":[]},
+"ethnayn2_0030.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0031.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0032.jpeg":{"w":0,"c":[]},
+"ethnayn2_0033.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0034.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0035.jpeg":{"w":0,"c":[]},
+"ethnayn2_0036.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0037.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0038.jpeg":{"w":0,"c":[]},
+"ethnayn2_0039.jpeg":{"w":0,"c":[]},
+"ethnayn2_0040.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0041.jpeg":{"w":1,"c":["The Modern Face","The Professional"]},
+"ethnayn2_0042.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0043.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0044.jpeg":{"w":0,"c":[]},
+"ethnayn2_0045.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0046.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0047.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0048.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0049.jpeg":{"w":0,"c":[]},
+"ethnayn2_0050.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0051.jpeg":{"w":0,"c":[]},
+"ethnayn2_0052.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0053.jpeg":{"w":0,"c":[]},
+"ethnayn2_0054.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0055.jpeg":{"w":0,"c":[]},
+"ethnayn2_0056.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0057.jpeg":{"w":0,"c":[]},
+"ethnayn2_0058.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0059.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0060.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0061.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0062.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0063.jpeg":{"w":1,"c":["The Advertisement","The Modern Face"]},
+"ethnayn2_0064.jpeg":{"w":0,"c":[]},
+"ethnayn2_0065.jpeg":{"w":1,"c":["The Advertisement","The Traditional Body"]},
+"ethnayn2_0066.jpeg":{"w":0,"c":[]},
+"ethnayn2_0067.jpeg":{"w":0,"c":[]},
+"ethnayn2_0068.jpeg":{"w":0,"c":[]},
+"ethnayn2_0069.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0070.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0071.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0072.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0073.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0074.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0075.jpeg":{"w":0,"c":[]},
+"ethnayn2_0076.jpeg":{"w":0,"c":[]},
+"ethnayn2_0077.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0078.jpeg":{"w":1,"c":["The Advertisement","The Modern Face"]},
+"ethnayn2_0079.jpeg":{"w":1,"c":["The Modern Face","The Professional"]},
+"ethnayn2_0080.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0081.jpeg":{"w":1,"c":["The Borrowed Image","The Advertisement"]},
+"ethnayn2_0082.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn2_0083.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0084.jpeg":{"w":0,"c":[]},
+"ethnayn2_0085.jpeg":{"w":0,"c":[]},
+"ethnayn2_0086.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0087.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0088.jpeg":{"w":1,"c":["The Modern Face","The Professional"]},
+"ethnayn2_0089.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn2_0090.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0091.jpeg":{"w":0,"c":[]},
+"ethnayn2_0092.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn2_0093.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0094.jpeg":{"w":0,"c":[]},
+"ethnayn2_0095.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0096.jpeg":{"w":0,"c":[]},
+"ethnayn2_0097.jpeg":{"w":1,"c":["The Professional","The Advertisement"]},
+"ethnayn2_0098.jpeg":{"w":0,"c":[]},
+"ethnayn2_0099.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0100.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0101.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0102.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0103.jpeg":{"w":0,"c":[]},
+"ethnayn2_0104.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0105.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0106.jpeg":{"w":0,"c":[]},
+"ethnayn2_0107.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0108.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0109.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0110.jpeg":{"w":1,"c":["The Traditional Body","The Advertisement"]},
+"ethnayn2_0111.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0112.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0113.jpeg":{"w":0,"c":[]},
+"ethnayn2_0114.jpeg":{"w":1,"c":["The Modern Face","The Advertisement","The Professional"]},
+"ethnayn2_0115.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0116.jpeg":{"w":1,"c":["The Traditional Body","The Professional"]},
+"ethnayn2_0117.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0118.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0119.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0120.jpeg":{"w":1,"c":["The Advertisement","The Traditional Body"]},
+"ethnayn2_0121.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0122.jpeg":{"w":0,"c":[]},
+"ethnayn2_0123.jpeg":{"w":1,"c":[]},
+"ethnayn2_0124.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0125.jpeg":{"w":0,"c":[]},
+"ethnayn2_0126.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0127.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0128.jpeg":{"w":0,"c":[]},
+"ethnayn2_0129.jpeg":{"w":0,"c":[]},
+"ethnayn2_0130.jpeg":{"w":0,"c":[]},
+"ethnayn2_0131.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0132.jpeg":{"w":0,"c":[]},
+"ethnayn2_0133.jpeg":{"w":0,"c":[]},
+"ethnayn2_0134.jpeg":{"w":0,"c":[]},
+"ethnayn2_0135.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0136.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn2_0137.jpeg":{"w":1,"c":["The Professional","The Traditional Body"]},
+"ethnayn2_0138.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0139.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0140.jpeg":{"w":0,"c":[]},
+"ethnayn2_0141.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0142.jpeg":{"w":0,"c":[]},
+"ethnayn2_0143.jpeg":{"w":0,"c":[]},
+"ethnayn2_0144.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0145.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0146.jpeg":{"w":0,"c":[]},
+"ethnayn2_0147.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0148.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0149.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0150.jpeg":{"w":1,"c":["The Advertisement","The Professional"]},
+"ethnayn2_0151.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0152.jpeg":{"w":0,"c":[]},
+"ethnayn2_0153.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0154.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0155.jpeg":{"w":0,"c":[]},
+"ethnayn2_0156.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0157.jpeg":{"w":0,"c":[]},
+"ethnayn2_0158.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0159.jpeg":{"w":0,"c":[]},
+"ethnayn2_0160.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0161.jpeg":{"w":0,"c":[]},
+"ethnayn2_0162.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0163.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0164.jpeg":{"w":0,"c":[]},
+"ethnayn2_0165.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0166.jpeg":{"w":1,"c":["The Borrowed Image","The Advertisement"]},
+"ethnayn2_0167.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0168.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0169.jpeg":{"w":1,"c":["The Professional","The Borrowed Image"]},
+"ethnayn2_0170.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0171.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0172.jpeg":{"w":0,"c":[]},
+"ethnayn2_0173.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0174.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0175.jpeg":{"w":0,"c":[]},
+"ethnayn2_0176.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0177.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0178.jpeg":{"w":0,"c":[]},
+"ethnayn2_0179.jpeg":{"w":0,"c":[]},
+"ethnayn2_0180.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0181.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn2_0182.jpeg":{"w":0,"c":[]},
+"ethnayn2_0183.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0184.jpeg":{"w":0,"c":[]},
+"ethnayn2_0185.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0186.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0187.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0188.jpeg":{"w":1,"c":["The Traditional Body","The Modern Face"]},
+"ethnayn2_0189.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn2_0190.jpeg":{"w":0,"c":[]},
+"ethnayn2_0191.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn2_0192.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn2_0193.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn2_0194.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0195.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn2_0196.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0197.jpeg":{"w":0,"c":[]},
+"ethnayn2_0198.jpeg":{"w":0,"c":[]},
+"ethnayn2_0199.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0200.jpeg":{"w":1,"c":["The Advertisement","The Traditional Body"]},
+"ethnayn2_0201.jpeg":{"w":0,"c":[]},
+"ethnayn2_0202.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0203.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0204.jpeg":{"w":0,"c":[]},
+"ethnayn2_0205.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0206.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn2_0207.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn2_0208.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0209.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0210.jpeg":{"w":1,"c":["The Modern Face","The Professional"]},
+"ethnayn2_0211.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0212.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0213.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0214.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0215.jpeg":{"w":0,"c":[]},
+"ethnayn2_0216.jpeg":{"w":1,"c":["The Professional","The Advertisement"]},
+"ethnayn2_0217.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0218.jpeg":{"w":1,"c":[]},
+"ethnayn2_0219.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0220.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0221.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0222.jpeg":{"w":0,"c":[]},
+"ethnayn2_0223.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0224.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0225.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0226.jpeg":{"w":0,"c":[]},
+"ethnayn2_0227.jpeg":{"w":0,"c":[]},
+"ethnayn2_0228.jpeg":{"w":0,"c":[]},
+"ethnayn2_0229.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0230.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0231.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0232.jpeg":{"w":1,"c":["The Borrowed Image","The Advertisement"]},
+"ethnayn2_0233.jpeg":{"w":0,"c":[]},
+"ethnayn2_0234.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0235.jpeg":{"w":1,"c":["The Advertisement","The Modern Face"]},
+"ethnayn2_0236.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0237.jpeg":{"w":1,"c":["The Professional","The Modern Face"]},
+"ethnayn2_0238.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0239.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0240.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0241.jpeg":{"w":0,"c":[]},
+"ethnayn2_0242.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0243.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0244.jpeg":{"w":0,"c":[]},
+"ethnayn2_0245.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0246.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn2_0247.jpeg":{"w":0,"c":[]},
+"ethnayn2_0248.jpeg":{"w":0,"c":[]},
+"ethnayn2_0249.jpeg":{"w":0,"c":[]},
+"ethnayn2_0250.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0251.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0252.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0253.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0254.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0255.jpeg":{"w":0,"c":[]},
+"ethnayn2_0256.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0257.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0258.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0259.jpeg":{"w":0,"c":[]},
+"ethnayn2_0260.jpeg":{"w":0,"c":[]},
+"ethnayn2_0261.jpeg":{"w":0,"c":[]},
+"ethnayn2_0262.jpeg":{"w":1,"c":["The Modern Face","The Professional"]},
+"ethnayn2_0263.jpeg":{"w":1,"c":["The Advertisement","The Modern Face"]},
+"ethnayn2_0264.jpeg":{"w":0,"c":[]},
+"ethnayn2_0265.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0266.jpeg":{"w":0,"c":[]},
+"ethnayn2_0267.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0268.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0269.jpeg":{"w":0,"c":[]},
+"ethnayn2_0270.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0271.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0272.jpeg":{"w":0,"c":[]},
+"ethnayn2_0273.jpeg":{"w":0,"c":[]},
+"ethnayn2_0274.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0275.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0276.jpeg":{"w":1,"c":["The Advertisement","The Modern Face"]},
+"ethnayn2_0277.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0278.jpeg":{"w":0,"c":[]},
+"ethnayn2_0279.jpeg":{"w":0,"c":[]},
+"ethnayn2_0280.jpeg":{"w":0,"c":[]},
+"ethnayn2_0281.jpeg":{"w":0,"c":[]},
+"ethnayn2_0282.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0283.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0284.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0285.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0286.jpeg":{"w":0,"c":[]},
+"ethnayn2_0287.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0288.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0289.jpeg":{"w":0,"c":[]},
+"ethnayn2_0290.jpeg":{"w":0,"c":[]},
+"ethnayn2_0291.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0292.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn2_0293.jpeg":{"w":1,"c":["The Modern Face","The Professional"]},
+"ethnayn2_0294.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0295.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn2_0296.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0297.jpeg":{"w":1,"c":["The Modern Face","The Professional"]},
+"ethnayn2_0298.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0299.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn2_0300.jpeg":{"w":1,"c":[]},
+"ethnayn2_0301.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0302.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0303.jpeg":{"w":0,"c":[]},
+"ethnayn2_0304.jpeg":{"w":0,"c":[]},
+"ethnayn2_0305.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0306.jpeg":{"w":1,"c":["The Professional","The Borrowed Image"]},
+"ethnayn2_0307.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0308.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0309.jpeg":{"w":0,"c":[]},
+"ethnayn2_0310.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0311.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0312.jpeg":{"w":0,"c":[]},
+"ethnayn2_0313.jpeg":{"w":0,"c":[]},
+"ethnayn2_0314.jpeg":{"w":0,"c":[]},
+"ethnayn2_0315.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0316.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0317.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0318.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0319.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0320.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0321.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0322.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0323.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0324.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0325.jpeg":{"w":0,"c":[]},
+"ethnayn2_0326.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0327.jpeg":{"w":1,"c":["The Traditional Body","The Borrowed Image"]},
+"ethnayn2_0328.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0329.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0330.jpeg":{"w":0,"c":[]},
+"ethnayn2_0331.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0332.jpeg":{"w":0,"c":[]},
+"ethnayn2_0333.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn2_0334.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0335.jpeg":{"w":0,"c":[]},
+"ethnayn2_0336.jpeg":{"w":0,"c":[]},
+"ethnayn2_0337.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0338.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn2_0339.jpeg":{"w":0,"c":[]},
+"ethnayn2_0340.jpeg":{"w":0,"c":[]},
+"ethnayn2_0341.jpeg":{"w":0,"c":[]},
+"ethnayn2_0342.jpeg":{"w":1,"c":["The Advertisement","The Professional"]},
+"ethnayn2_0343.jpeg":{"w":1,"c":["The Professional","The Borrowed Image"]},
+"ethnayn2_0344.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn2_0345.jpeg":{"w":1,"c":["The Borrowed Image","The Advertisement"]},
+"ethnayn2_0346.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0347.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0348.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0349.jpeg":{"w":0,"c":[]},
+"ethnayn2_0350.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0351.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0352.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0353.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn2_0354.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0355.jpeg":{"w":0,"c":[]},
+"ethnayn2_0356.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0357.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0358.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0359.jpeg":{"w":0,"c":[]},
+"ethnayn2_0360.jpeg":{"w":0,"c":[]},
+"ethnayn2_0361.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0362.jpeg":{"w":0,"c":[]},
+"ethnayn2_0363.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0364.jpeg":{"w":1,"c":["The Advertisement","The Professional"]},
+"ethnayn2_0365.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0366.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0367.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body","The Borrowed Image"]},
+"ethnayn2_0368.jpeg":{"w":0,"c":[]},
+"ethnayn2_0369.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn2_0370.jpeg":{"w":0,"c":[]},
+"ethnayn2_0371.jpeg":{"w":0,"c":[]},
+"ethnayn2_0372.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0373.jpeg":{"w":0,"c":[]},
+"ethnayn2_0374.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0375.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0376.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0377.jpeg":{"w":0,"c":[]},
+"ethnayn2_0378.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0379.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0380.jpeg":{"w":0,"c":[]},
+"ethnayn2_0381.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn2_0382.jpeg":{"w":0,"c":[]},
+"ethnayn2_0383.jpeg":{"w":0,"c":[]},
+"ethnayn2_0384.jpeg":{"w":0,"c":[]},
+"ethnayn2_0385.jpeg":{"w":0,"c":[]},
+"ethnayn2_0386.jpeg":{"w":0,"c":[]},
+"ethnayn2_0387.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0388.jpeg":{"w":0,"c":[]},
+"ethnayn2_0389.jpeg":{"w":1,"c":["The Modern Face","The Advertisement","The Borrowed Image"]},
+"ethnayn2_0390.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn2_0391.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0392.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0393.jpeg":{"w":0,"c":[]},
+"ethnayn2_0394.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0395.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0396.jpeg":{"w":0,"c":[]},
+"ethnayn2_0397.jpeg":{"w":0,"c":[]},
+"ethnayn2_0398.jpeg":{"w":0,"c":[]},
+"ethnayn2_0399.jpeg":{"w":0,"c":[]},
+"ethnayn2_0400.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0401.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0402.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn2_0403.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0404.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0405.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn2_0406.jpeg":{"w":0,"c":[]},
+"ethnayn2_0407.jpeg":{"w":1,"c":["The Modern Face","The Advertisement","The Professional"]},
+"ethnayn2_0408.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0409.jpeg":{"w":0,"c":[]},
+"ethnayn2_0410.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0411.jpeg":{"w":1,"c":["The Modern Face","The Advertisement","The Borrowed Image"]},
+"ethnayn2_0412.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0413.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0414.jpeg":{"w":0,"c":[]},
+"ethnayn2_0415.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0416.jpeg":{"w":0,"c":[]},
+"ethnayn2_0417.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0418.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn2_0419.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0420.jpeg":{"w":0,"c":[]},
+"ethnayn2_0421.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0422.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn2_0423.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn2_0424.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0425.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0426.jpeg":{"w":0,"c":[]},
+"ethnayn2_0427.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn2_0428.jpeg":{"w":1,"c":["The Borrowed Image","The Advertisement"]},
+"ethnayn2_0429.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn2_0430.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0001.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0002.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0003.jpeg":{"w":0,"c":[]},
+"ethnayn3_0004.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0005.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn3_0006.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0007.jpeg":{"w":0,"c":[]},
+"ethnayn3_0008.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0009.jpeg":{"w":1,"c":["The Advertisement","The Professional"]},
+"ethnayn3_0010.jpeg":{"w":1,"c":["The Professional","The Advertisement"]},
+"ethnayn3_0011.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0012.jpeg":{"w":0,"c":[]},
+"ethnayn3_0013.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0014.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0015.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0016.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0017.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0018.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0019.jpeg":{"w":0,"c":[]},
+"ethnayn3_0020.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0021.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0022.jpeg":{"w":1,"c":["The Traditional Body","The Borrowed Image"]},
+"ethnayn3_0023.jpeg":{"w":0,"c":[]},
+"ethnayn3_0024.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0025.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0026.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0027.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0028.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0029.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0030.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0031.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0032.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0033.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0034.jpeg":{"w":0,"c":[]},
+"ethnayn3_0035.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0036.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0037.jpeg":{"w":0,"c":[]},
+"ethnayn3_0038.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0039.jpeg":{"w":0,"c":[]},
+"ethnayn3_0040.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0041.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0042.jpeg":{"w":0,"c":[]},
+"ethnayn3_0043.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0044.jpeg":{"w":0,"c":[]},
+"ethnayn3_0045.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0046.jpeg":{"w":0,"c":[]},
+"ethnayn3_0047.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0048.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0049.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0050.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0051.jpeg":{"w":0,"c":[]},
+"ethnayn3_0052.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0053.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0054.jpeg":{"w":0,"c":[]},
+"ethnayn3_0055.jpeg":{"w":0,"c":[]},
+"ethnayn3_0056.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0057.jpeg":{"w":0,"c":[]},
+"ethnayn3_0058.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0059.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0060.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0061.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0062.jpeg":{"w":0,"c":[]},
+"ethnayn3_0063.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0064.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0065.jpeg":{"w":1,"c":["The Professional","The Traditional Body"]},
+"ethnayn3_0066.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0067.jpeg":{"w":0,"c":[]},
+"ethnayn3_0068.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0069.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0070.jpeg":{"w":0,"c":[]},
+"ethnayn3_0071.jpeg":{"w":0,"c":[]},
+"ethnayn3_0072.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn3_0073.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0074.jpeg":{"w":0,"c":[]},
+"ethnayn3_0075.jpeg":{"w":0,"c":[]},
+"ethnayn3_0076.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0077.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn3_0078.jpeg":{"w":0,"c":[]},
+"ethnayn3_0079.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0080.jpeg":{"w":0,"c":[]},
+"ethnayn3_0081.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0082.jpeg":{"w":0,"c":[]},
+"ethnayn3_0083.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0084.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0085.jpeg":{"w":0,"c":[]},
+"ethnayn3_0086.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0087.jpeg":{"w":0,"c":[]},
+"ethnayn3_0088.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0089.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0090.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0091.jpeg":{"w":0,"c":[]},
+"ethnayn3_0092.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0093.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn3_0094.jpeg":{"w":0,"c":[]},
+"ethnayn3_0095.jpeg":{"w":1,"c":["The Traditional Body","The Advertisement"]},
+"ethnayn3_0096.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0097.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0098.jpeg":{"w":1,"c":["The Professional","The Advertisement"]},
+"ethnayn3_0099.jpeg":{"w":0,"c":[]},
+"ethnayn3_0100.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0101.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0102.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0103.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0104.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0105.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0106.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0107.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0108.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body","The Before & After"]},
+"ethnayn3_0109.jpeg":{"w":0,"c":[]},
+"ethnayn3_0110.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0111.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0112.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0113.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0114.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0115.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn3_0116.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0117.jpeg":{"w":0,"c":[]},
+"ethnayn3_0118.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0119.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0120.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0121.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0122.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0123.jpeg":{"w":1,"c":["The Traditional Body","The Modern Face"]},
+"ethnayn3_0124.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0125.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0126.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0127.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0128.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0129.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0130.jpeg":{"w":0,"c":[]},
+"ethnayn3_0131.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0132.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0133.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0134.jpeg":{"w":0,"c":[]},
+"ethnayn3_0135.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0136.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0137.jpeg":{"w":0,"c":[]},
+"ethnayn3_0138.jpeg":{"w":1,"c":["The Advertisement","The Traditional Body"]},
+"ethnayn3_0139.jpeg":{"w":1,"c":["The Modern Face","The Traditional Body"]},
+"ethnayn3_0140.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn3_0141.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0142.jpeg":{"w":0,"c":[]},
+"ethnayn3_0143.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0144.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0145.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0146.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0147.jpeg":{"w":0,"c":[]},
+"ethnayn3_0148.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn3_0149.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0150.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn3_0151.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0152.jpeg":{"w":0,"c":[]},
+"ethnayn3_0153.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn3_0154.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0155.jpeg":{"w":1,"c":["The Professional","The Borrowed Image"]},
+"ethnayn3_0156.jpeg":{"w":0,"c":[]},
+"ethnayn3_0157.jpeg":{"w":0,"c":[]},
+"ethnayn3_0158.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0159.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0160.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0161.jpeg":{"w":0,"c":[]},
+"ethnayn3_0162.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0163.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0164.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0165.jpeg":{"w":0,"c":[]},
+"ethnayn3_0166.jpeg":{"w":1,"c":["The Advertisement","The Professional"]},
+"ethnayn3_0167.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0168.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0169.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0170.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0171.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0172.jpeg":{"w":1,"c":["The Borrowed Image","The Professional"]},
+"ethnayn3_0173.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0174.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0175.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn3_0176.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0177.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0178.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0179.jpeg":{"w":0,"c":[]},
+"ethnayn3_0180.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0181.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0182.jpeg":{"w":0,"c":[]},
+"ethnayn3_0183.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0184.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0185.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0186.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0187.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0188.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0189.jpeg":{"w":0,"c":[]},
+"ethnayn3_0190.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0191.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn3_0192.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0193.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0194.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0195.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0196.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0197.jpeg":{"w":0,"c":[]},
+"ethnayn3_0198.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0199.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0200.jpeg":{"w":0,"c":[]},
+"ethnayn3_0201.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0202.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0203.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0204.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0205.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0206.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0207.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0208.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0209.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0210.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0211.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0212.jpeg":{"w":0,"c":[]},
+"ethnayn3_0213.jpeg":{"w":0,"c":[]},
+"ethnayn3_0214.jpeg":{"w":0,"c":[]},
+"ethnayn3_0215.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0216.jpeg":{"w":0,"c":[]},
+"ethnayn3_0217.jpeg":{"w":0,"c":[]},
+"ethnayn3_0218.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0219.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0220.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0221.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0222.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0223.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0224.jpeg":{"w":1,"c":["The Modern Face","The Professional"]},
+"ethnayn3_0225.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0226.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0227.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0228.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0229.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0230.jpeg":{"w":1,"c":["The Traditional Body","The Advertisement"]},
+"ethnayn3_0231.jpeg":{"w":0,"c":[]},
+"ethnayn3_0232.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0233.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0234.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0235.jpeg":{"w":0,"c":[]},
+"ethnayn3_0236.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0237.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0238.jpeg":{"w":0,"c":[]},
+"ethnayn3_0239.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0240.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0241.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0242.jpeg":{"w":1,"c":["The Advertisement","The Modern Face"]},
+"ethnayn3_0243.jpeg":{"w":0,"c":[]},
+"ethnayn3_0244.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0245.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0246.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0247.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0248.jpeg":{"w":0,"c":[]},
+"ethnayn3_0249.jpeg":{"w":0,"c":[]},
+"ethnayn3_0250.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0251.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0252.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0253.jpeg":{"w":1,"c":["The Borrowed Image","The Advertisement"]},
+"ethnayn3_0254.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0255.jpeg":{"w":0,"c":[]},
+"ethnayn3_0256.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0257.jpeg":{"w":1,"c":["The Advertisement","The Modern Face"]},
+"ethnayn3_0258.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0259.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0260.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0261.jpeg":{"w":0,"c":[]},
+"ethnayn3_0262.jpeg":{"w":0,"c":[]},
+"ethnayn3_0263.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0264.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0265.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0266.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0267.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0268.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0269.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0270.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0271.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0272.jpeg":{"w":1,"c":["The Modern Face","The Professional","The Borrowed Image"]},
+"ethnayn3_0273.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0274.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0275.jpeg":{"w":0,"c":[]},
+"ethnayn3_0276.jpeg":{"w":0,"c":[]},
+"ethnayn3_0277.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0278.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0279.jpeg":{"w":0,"c":[]},
+"ethnayn3_0280.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0281.jpeg":{"w":0,"c":[]},
+"ethnayn3_0282.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn3_0283.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0284.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0285.jpeg":{"w":0,"c":[]},
+"ethnayn3_0286.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0287.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn3_0288.jpeg":{"w":0,"c":[]},
+"ethnayn3_0289.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0290.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn3_0291.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0292.jpeg":{"w":0,"c":[]},
+"ethnayn3_0293.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0294.jpeg":{"w":0,"c":[]},
+"ethnayn3_0295.jpeg":{"w":0,"c":[]},
+"ethnayn3_0296.jpeg":{"w":0,"c":[]},
+"ethnayn3_0297.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0298.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0299.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0300.jpeg":{"w":0,"c":[]},
+"ethnayn3_0301.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0302.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0303.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0304.jpeg":{"w":0,"c":[]},
+"ethnayn3_0305.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0306.jpeg":{"w":1,"c":["The Traditional Body"]},
+"ethnayn3_0307.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0308.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0309.jpeg":{"w":0,"c":[]},
+"ethnayn3_0310.jpeg":{"w":0,"c":[]},
+"ethnayn3_0311.jpeg":{"w":1,"c":["The Modern Face","The Borrowed Image"]},
+"ethnayn3_0312.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0313.jpeg":{"w":0,"c":[]},
+"ethnayn3_0314.jpeg":{"w":1,"c":["The Traditional Body","The Borrowed Image"]},
+"ethnayn3_0315.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0316.jpeg":{"w":0,"c":[]},
+"ethnayn3_0317.jpeg":{"w":0,"c":[]},
+"ethnayn3_0318.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0319.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0320.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0321.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0322.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0323.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0324.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0325.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0326.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0327.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0328.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0329.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0330.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0331.jpeg":{"w":0,"c":[]},
+"ethnayn3_0332.jpeg":{"w":0,"c":[]},
+"ethnayn3_0333.jpeg":{"w":1,"c":["The Modern Face","The Advertisement"]},
+"ethnayn3_0334.jpeg":{"w":1,"c":["The Advertisement","The Modern Face"]},
+"ethnayn3_0335.jpeg":{"w":0,"c":[]},
+"ethnayn3_0336.jpeg":{"w":1,"c":["The Borrowed Image"]},
+"ethnayn3_0337.jpeg":{"w":1,"c":["The Professional"]},
+"ethnayn3_0338.jpeg":{"w":1,"c":["The Modern Face"]},
+"ethnayn3_0339.jpeg":{"w":1,"c":["The Advertisement","The Professional"]},
+"ethnayn3_0340.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0341.jpeg":{"w":0,"c":[]},
+"ethnayn3_0342.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0343.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0344.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0345.jpeg":{"w":1,"c":["The Advertisement","The Borrowed Image"]},
+"ethnayn3_0346.jpeg":{"w":1,"c":["The Advertisement"]},
+"ethnayn3_0347.jpeg":{"w":1,"c":["The Advertisement","The Professional"]},
+"ethnayn3_0348.jpeg":{"w":1,"c":["The Advertisement"]}
+};
+
+// ── All magazine folders with generated file lists ───────
+function seq(n, prefix, ext) {
+  const a = [];
+  for (let i = 1; i <= n; i++) a.push(prefix + String(i).padStart(4, '0') + ext);
+  return a;
+}
+
+const FOLDERS = [
+  // ── Top row: smaller clusters ──
+  { dir: 'Al-Kawakib',              label: 'Al-Kawakib',   country: 'Egypt',
+    files: seq(23, 'kawakib_', '.jpg'),   cx: 3000,  cy: 3000 },
+  { dir: 'Al-Thqafa',               label: 'Al-Thqafa',    country: 'Egypt',
+    files: Array.from({length: 9},  (_, i) => `CamScanner 18-05-2026 13.33_${i + 1}.JPG`),
+                                          cx: 9000,  cy: 2500 },
+  { dir: 'Al-Rissalah',             label: 'Al-Rissalah',  country: 'Egypt',
+    files: Array.from({length: 36}, (_, i) => `الرسالة_${i + 1}.JPG`),
+                                          cx: 15500, cy: 3000 },
+  { dir: 'Al-ethnayn wa Aldonya',   label: 'Al-ethnayn',   country: 'Egypt',
+    files: seq(36, 'ethnayn_', '.jpg'),   cx: 22500, cy: 2500 },
+  // ── Bottom row: larger clusters ──
+  { dir: 'Al-Mawed',                label: 'Al-Mawed',     country: 'Egypt',
+    files: seq(246, 'mawed_', '.jpg'),    cx: 7300,  cy: 12000 },
+  { dir: 'Al-alam',                 label: 'Al-alam',      country: 'Morocco',
+    files: seq(144, 'alam_', '.jpg'),     cx: 20000, cy: 12000 },
+  { dir: 'Al-ethnayn wa aldonya 2', label: 'Al-ethnayn 2', country: 'Egypt',
+    files: seq(430, 'ethnayn2_', '.jpeg'),cx: 34500, cy: 12000 },
+  { dir: 'Al-ethnayn wa aldonya 3', label: 'Al-ethnayn 3', country: 'Egypt',
+    files: seq(348, 'ethnayn3_', '.jpeg'),cx: 51750, cy: 12000 },
+];
+
+const CELL_W = 630, CELL_H = 490;
+
+// Card background palette — multiply-blends against the grayscale image
+const CARD_COLORS = [
+  'hsla(51,  9%, 94%, 1)',
+  'hsla(35, 48%, 76%, 1)',
+  'hsla(148, 22%, 86%, 1)',
+  'hsla(30,  6%, 82%, 1)',
+  'hsla(18, 28%, 90%, 1)',
+];
+
+const CAT_CARD_COLOR = {
+  'The Advertisement':    'hsla(5,   42%, 82%, 0.55)',
+  'The Borrowed Image':   'hsla(145, 30%, 76%, 0.55)',
+  'The Modern Face':      'hsla(35,  52%, 74%, 0.55)',
+  'The Professional':     'hsla(215, 28%, 80%, 0.55)',
+  'The Traditional Body': 'hsla(270, 22%, 82%, 0.55)',
+};
+
+function makeRand(seed) {
+  let s = seed;
+  return () => { s = (s * 1664525 + 1013904223) & 0xffffffff; return (s >>> 0) / 0xffffffff; };
+}
+
+const allNodes = [];
+
+function buildNodes() {
+  const map = document.getElementById('vis-map');
+  let nodeIndex = 0;
+  FOLDERS.forEach((folder, fi) => {
+    const n = folder.files.length;
+    const cols = Math.max(4, Math.round(Math.sqrt(n * 1.6)));
+    const rows = Math.ceil(n / cols);
+    const originX = folder.cx - (cols * CELL_W) / 2 + CELL_W / 2;
+    const originY = folder.cy - (rows * CELL_H) / 2 + CELL_H / 2;
+    const rand = makeRand(fi * 997 + 7);
+    const rowShifts = Array.from({length: rows}, () => (rand() - 0.5) * CELL_W);
+
+    folder.files.forEach((file, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const jx = (rand() - 0.5) * 110;
+      const jy = (rand() - 0.5) * 200;
+      const x = Math.round(originX + col * CELL_W + rowShifts[row] + jx);
+      const y = Math.round(originY + row * CELL_H + jy);
+
+      const _meta = IMAGE_DATA[file] || {};
+      const primaryCat = (_meta.c && _meta.c.length) ? _meta.c[0] : null;
+      const color = primaryCat && CAT_CARD_COLOR[primaryCat]
+        ? CAT_CARD_COLOR[primaryCat]
+        : 'hsla(51, 9%, 94%, 1)';
+
+      const node = document.createElement('div');
+      node.className = 'vis-node';
+      node.style.left = x + 'px';
+      node.style.top  = y + 'px';
+      node._origX = x;
+      node._origY = y;
+      node.style.backgroundColor = color;
+      node._origColor = color;
+      node.style.animationDelay = Math.floor(Math.random() * 600) + 'ms';
+      if (_meta.c && _meta.c.length) node.dataset.c = _meta.c.join(',');
+      if (_meta.w) node.dataset.w = '1';
+      node.dataset.m       = folder.label;
+      node.dataset.country = folder.country || '';
+      node.dataset.file    = file;
+      nodeIndex++;
+
+      const img = document.createElement('img');
+      img.src = folder.dir + '/' + file;
+      img.loading = 'lazy';
+      img.alt = '';
+
+      node.appendChild(img);
+      map.appendChild(node);
+      allNodes.push(node);
+    });
+
+    // Cluster title
+    const clusterLabel = document.createElement('div');
+    clusterLabel.className = 'vis-cluster-label';
+    clusterLabel.textContent = folder.label;
+    clusterLabel.style.left = folder.cx + 'px';
+    clusterLabel.style.top  = (folder.cy - Math.ceil(n / Math.max(4, Math.round(Math.sqrt(n * 1.6)))) * CELL_H / 2 - 40) + 'px';
+    map.appendChild(clusterLabel);
+  });
+}
+
+// ── Shared canvas state (pan + float combined) ───────────
+const _vis = document.querySelector('.visualisation');
+const _map = document.getElementById('vis-map');
+const MAP_W = 61000, MAP_H = 18000;
+let _px = -(7300  - window.innerWidth  / 2);
+let _py = -(12000 - window.innerHeight / 2);
+let _floatDX = 0, _floatDY = 0;
+
+function applyTransform() {
+  _map.style.transform = `translate(${Math.round(_px + _floatDX)}px, ${Math.round(_py + _floatDY)}px)`;
+}
+
+// ── Pan + momentum ────────────────────────────────────────
+(function() {
+  let vx = 0, vy = 0, rafId = null;
+
+  function minX() { return window.innerWidth  - MAP_W; }
+  function minY() { return window.innerHeight - MAP_H; }
+
+  function loop() {
+    vx *= 0.9; vy *= 0.9;
+    _px += vx; _py += vy;
+    const mX = minX(), mY = minY();
+    if (_px > 0)  { vx -= _px * 0.25; _px = Math.min(_px, 80); }
+    if (_px < mX) { vx -= (_px - mX) * 0.25; _px = Math.max(_px, mX - 80); }
+    if (_py > 0)  { vy -= _py * 0.25; _py = Math.min(_py, 80); }
+    if (_py < mY) { vy -= (_py - mY) * 0.25; _py = Math.max(_py, mY - 80); }
+    applyTransform();
+    if (Math.abs(vx) < 0.08 && Math.abs(vy) < 0.08) {
+      _px = Math.min(0, Math.max(mX, _px));
+      _py = Math.min(0, Math.max(mY, _py));
+      applyTransform(); vx = 0; vy = 0; rafId = null;
+    } else { rafId = requestAnimationFrame(loop); }
+  }
+
+  function startLoop() { if (!rafId) rafId = requestAnimationFrame(loop); }
+
+  _vis.addEventListener('wheel', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    e.preventDefault();
+    const s = e.deltaMode === 0 ? 1 : e.deltaMode === 1 ? 20 : 300;
+    vx += -e.deltaX * 0.5 * s; vy += -e.deltaY * 0.5 * s;
+    startLoop();
+  }, { passive: false });
+
+  let dragging = false, lastMX, lastMY, throwVx, throwVy;
+  let _ckX = 0, _ckY = 0, _ckTarget = null;
+
+  _vis.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    _ckX = e.clientX; _ckY = e.clientY; _ckTarget = e.target;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    dragging = true; lastMX = e.clientX; lastMY = e.clientY;
+    throwVx = 0; throwVy = 0;
+    _vis.classList.add('dragging'); e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - lastMX, dy = e.clientY - lastMY;
+    throwVx = dx; throwVy = dy;
+    _px += dx; _py += dy;
+    lastMX = e.clientX; lastMY = e.clientY;
+    applyTransform();
+  });
+
+  window.addEventListener('mouseup', e => {
+    if (!dragging) return;
+    const wasDrag = Math.hypot(e.clientX - _ckX, e.clientY - _ckY) > 6;
+    dragging = false; _vis.classList.remove('dragging');
+    vx = throwVx * 4; vy = throwVy * 4; startLoop();
+
+    if (!wasDrag) {
+      const node = (_ckTarget || e.target).closest('.vis-node');
+      if (node) {
+        const file    = node.dataset.file    || '';
+        const mag     = node.dataset.m       || '';
+        const country = node.dataset.country || '';
+        const cats    = node.dataset.c       || '';
+        const folder  = FOLDERS.find(f => f.label === mag);
+        if (folder) {
+          const p = new URLSearchParams({ dir: folder.dir, file, mag, country, cats });
+          window.location.href = 'object.html?' + p.toString();
+        }
+      }
+    }
+  });
+
+  let lastTX, lastTY, touchVx, touchVy;
+
+  _vis.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    const t = e.touches[0]; lastTX = t.clientX; lastTY = t.clientY;
+    touchVx = 0; touchVy = 0;
+  }, { passive: true });
+
+  window.addEventListener('touchmove', e => {
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    const dx = t.clientX - lastTX, dy = t.clientY - lastTY;
+    _px += dx; _py += dy; touchVx = dx; touchVy = dy;
+    lastTX = t.clientX; lastTY = t.clientY; applyTransform();
+  }, { passive: true });
+
+  window.addEventListener('touchend', () => {
+    vx = touchVx * 4; vy = touchVy * 4; startLoop();
+  });
+
+  applyTransform();
+})();
+
+buildNodes();
+
+// ── Category connection lines & labels ───────────────────
+const CAT_ORDER = [
+  'The Advertisement',
+  'The Borrowed Image',
+  'The Modern Face',
+  'The Professional',
+  'The Traditional Body',
+];
+const CAT_COLOR = {
+  'The Advertisement':    { line: 'rgba(185,40,40,0.30)',   text: 'rgba(175,35,35,0.85)'   },
+  'The Borrowed Image':   { line: 'rgba(45,75,185,0.30)',   text: 'rgba(40,65,175,0.85)'   },
+  'The Modern Face':      { line: 'rgba(175,125,15,0.30)',  text: 'rgba(160,110,10,0.85)'  },
+  'The Professional':     { line: 'rgba(25,125,75,0.30)',   text: 'rgba(20,115,65,0.85)'   },
+  'The Traditional Body': { line: 'rgba(120,40,165,0.30)',  text: 'rgba(110,30,155,0.85)'  },
+};
+
+function buildMagLines() {
+  const NS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(NS, 'svg');
+  svg.id = 'mag-lines';
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('width',  MAP_W);
+  svg.setAttribute('height', MAP_H);
+
+  // ── Hand-drawn filter ──────────────────────────────────────
+  const defs = document.createElementNS(NS, 'defs');
+  const filt = document.createElementNS(NS, 'filter');
+  filt.setAttribute('id', 'sketchy');
+  filt.setAttribute('x', '-5%'); filt.setAttribute('y', '-5%');
+  filt.setAttribute('width', '110%'); filt.setAttribute('height', '110%');
+
+  const turb = document.createElementNS(NS, 'feTurbulence');
+  turb.setAttribute('type', 'turbulence');
+  turb.setAttribute('baseFrequency', '0.006');
+  turb.setAttribute('numOctaves', '2');
+  turb.setAttribute('seed', '8');
+  turb.setAttribute('result', 'noise');
+
+  const disp = document.createElementNS(NS, 'feDisplacementMap');
+  disp.setAttribute('in', 'SourceGraphic');
+  disp.setAttribute('in2', 'noise');
+  disp.setAttribute('scale', '14');
+  disp.setAttribute('xChannelSelector', 'R');
+  disp.setAttribute('yChannelSelector', 'G');
+
+  filt.appendChild(turb);
+  filt.appendChild(disp);
+  defs.appendChild(filt);
+  svg.appendChild(defs);
+
+  // ── Group for ovals + connecting lines ─────────────────────
+  const g = document.createElementNS(NS, 'g');
+  g.setAttribute('filter', 'url(#sketchy)');
+  g.setAttribute('stroke', 'rgba(255,255,255,0.35)');
+  g.setAttribute('stroke-width', '1.5');
+  g.setAttribute('fill', 'none');
+
+  // Group nodes by magazine, preserving page order
+  const byMag = {};
+  FOLDERS.forEach(f => { byMag[f.label] = []; });
+  allNodes.forEach(node => {
+    const mag = node.dataset.m;
+    if (byMag[mag]) byMag[mag].push(node);
+  });
+
+  const RX = 265, RY = 205; // roughly match node card dimensions
+
+  // Store references so refreshMagLines can update positions
+  const _mlByMag = byMag;
+  const _mlG = g;
+  const _mlNS = NS;
+  const _mlRX = RX, _mlRY = RY;
+  let _mlLabelsGroup = null;
+
+  FOLDERS.forEach((folder) => {
+    const nodes = _mlByMag[folder.label];
+    nodes.forEach((node, i) => {
+      const ellipse = document.createElementNS(_mlNS, 'ellipse');
+      ellipse.setAttribute('rx', RX);
+      ellipse.setAttribute('ry', RY);
+      node._svgEllipse = ellipse;
+      g.appendChild(ellipse);
+
+      if (i < nodes.length - 1) {
+        const ln = document.createElementNS(_mlNS, 'line');
+        node._svgLine = ln;
+        g.appendChild(ln);
+      } else {
+        node._svgLine = null;
+      }
+    });
+  });
+
+  svg.appendChild(g);
+
+  // Labels group (outside filter — stays crisp)
+  const labelsG = document.createElementNS(NS, 'g');
+  labelsG.id = 'mag-lines-labels';
+  FOLDERS.forEach((folder, fi) => {
+    const nodes = _mlByMag[folder.label];
+    const groupNum = fi + 1;
+    nodes.forEach((node, i) => {
+      const label = i === 0 ? String(groupNum) : groupNum + '.' + i;
+      const txt = document.createElementNS(NS, 'text');
+      txt.setAttribute('font-family', "Georgia, 'Times New Roman', serif");
+      txt.setAttribute('font-style', 'italic');
+      txt.setAttribute('font-size', '13');
+      txt.setAttribute('fill', 'rgba(255,255,255,0.80)');
+      txt.textContent = label;
+      node._svgLabel = txt;
+      labelsG.appendChild(txt);
+    });
+  });
+  svg.appendChild(labelsG);
+  _mlLabelsGroup = labelsG;
+
+  const map = document.getElementById('vis-map');
+  map.insertBefore(svg, map.firstChild);
+
+  // Position all elements at original positions
+  refreshMagLines(null);
+}
+
+function refreshMagLines(visibleSet) {
+  // visibleSet = null means show all at origX/origY
+  // visibleSet = Set or array of visible nodes — use their current style.left/top
+  const RX = 265, RY = 205;
+  const visSet = visibleSet ? new Set(visibleSet) : null;
+
+  FOLDERS.forEach((folder) => {
+    const nodes = (window._mlByMag || {})[folder.label];
+    if (!nodes) return;
+    nodes.forEach((node, i) => {
+      const visible = !visSet || visSet.has(node);
+      const cx = visible ? (visSet ? parseInt(node.style.left) || node._origX : node._origX) : -9999;
+      const cy = visible ? (visSet ? parseInt(node.style.top)  || node._origY : node._origY) : -9999;
+
+      if (node._svgEllipse) {
+        node._svgEllipse.setAttribute('cx', cx);
+        node._svgEllipse.setAttribute('cy', cy);
+      }
+
+      if (node._svgLine) {
+        const b = nodes[i + 1];
+        const bVisible = b && (!visSet || visSet.has(b));
+        if (visible && bVisible) {
+          const bx = visSet ? (parseInt(b.style.left) || b._origX) : b._origX;
+          const by = visSet ? (parseInt(b.style.top)  || b._origY) : b._origY;
+          node._svgLine.setAttribute('x1', cx); node._svgLine.setAttribute('y1', cy);
+          node._svgLine.setAttribute('x2', bx); node._svgLine.setAttribute('y2', by);
+          node._svgLine.setAttribute('display', '');
+        } else {
+          node._svgLine.setAttribute('display', 'none');
+        }
+      }
+
+      if (node._svgLabel) {
+        node._svgLabel.setAttribute('x', (visible ? cx : -9999) + 10);
+        node._svgLabel.setAttribute('y', (visible ? cy - RY - 8 : -9999));
+      }
+    });
+  });
+}
+
+// Expose byMag for refreshMagLines
+(function() {
+  const bm = {};
+  FOLDERS.forEach(f => { bm[f.label] = []; });
+  allNodes.forEach(node => { const m = node.dataset.m; if (bm[m]) bm[m].push(node); });
+  window._mlByMag = bm;
+})();
+
+buildMagLines();
+
+
+// ── Category + Magazine filter ────────────────────────────────────────────
+let _activeCat = '', _activeMag = '';
+let _colorEnabled = false;
+
+function applyFilters() {
+  const linesEl = document.getElementById('mag-lines');
+  if (linesEl) linesEl.classList.remove('faded');
+
+  function popNodes(nodes) {
+    // Freeze animation, then restart it so nodes pop from their new positions
+    nodes.forEach(node => { node.style.animation = 'none'; });
+    document.body.offsetHeight; // single reflow flush
+    nodes.forEach(node => {
+      node.style.animation = '';
+      node.style.animationDelay = Math.floor(Math.random() * 400) + 'ms';
+    });
+  }
+
+  if (!_activeCat && !_activeMag) {
+    allNodes.forEach(node => {
+      node.classList.remove('vis-node--hidden');
+      node.style.transition = 'none';
+      node.style.left = node._origX + 'px';
+      node.style.top  = node._origY + 'px';
+      node.style.backgroundColor = _colorEnabled ? node._origColor : 'hsla(51, 9%, 94%, 1)';
+    });
+    popNodes(allNodes);
+    refreshMagLines(null);
+    return;
+  }
+
+  const matching = [], rest = [];
+  allNodes.forEach(node => {
+    const cats = node.dataset.c ? node.dataset.c.split(',') : [];
+    const catOk = !_activeCat || cats.includes(_activeCat);
+    const magOk = !_activeMag || (node.dataset.m || '') === _activeMag;
+    (catOk && magOk ? matching : rest).push(node);
+  });
+
+  rest.forEach(node => node.classList.add('vis-node--hidden'));
+
+  const filterColor = (_colorEnabled && _activeCat && CAT_CARD_COLOR[_activeCat])
+    ? CAT_CARD_COLOR[_activeCat]
+    : 'hsla(51, 9%, 94%, 1)';
+  matching.forEach(node => { node.style.backgroundColor = filterColor; });
+
+  const n = matching.length;
+  if (n === 0) { refreshMagLines(matching); return; }
+
+  const cols = Math.max(4, Math.round(Math.sqrt(n * 1.6)));
+  const rows = Math.ceil(n / cols);
+  const CW = 630, CH = 490;
+  const cx = Math.round(-_px + window.innerWidth  / 2);
+  const cy = Math.round(-_py + window.innerHeight / 2);
+  const originX = cx - (cols * CW) / 2 + CW / 2;
+  const originY = cy - (rows * CH) / 2 + CH / 2;
+
+  const seed = (_activeCat + '|' + _activeMag).split('').reduce((a,c) => a + c.charCodeAt(0), 0) * 31 + 7;
+  const rand = makeRand(seed);
+  const rowShifts = Array.from({length: rows}, () => (rand() - 0.5) * CW);
+
+  // Set positions instantly (no transition), then pop in
+  matching.forEach((node, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const jx  = (rand() - 0.5) * 110;
+    const jy  = (rand() - 0.5) * 200;
+    const x   = Math.round(originX + col * CW + rowShifts[row] + jx);
+    const y   = Math.round(originY + row * CH + jy);
+    node.classList.remove('vis-node--hidden');
+    node.style.transition = 'none';
+    node.style.left = x + 'px';
+    node.style.top  = y + 'px';
+  });
+
+  popNodes(matching);
+  refreshMagLines(matching);
+}
+
+// ── URL hash → pre-apply category filter ─────────────────────────────────
+(function() {
+  const m = location.hash.match(/^#cat=(.+)$/);
+  if (!m) return;
+  const cat = decodeURIComponent(m[1]);
+  const CAT_NAMES = ['The Advertisement','The Borrowed Image','The Modern Face','The Professional','The Traditional Body'];
+  if (!CAT_NAMES.includes(cat)) return;
+  _activeCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.cat === _activeCat)
+  );
+  document.querySelectorAll('.ctx-item[data-cat]').forEach(i =>
+    i.classList.toggle('ctx-item--active', i.dataset.cat === _activeCat)
+  );
+  applyFilters();
+})();
+
+// ── Context menu ──────────────────────────────────────────────────────────
+function showCtxMenu(x, y) {
+  const menu = document.getElementById('ctx-menu');
+  menu.style.display = 'block';
+  const mw = menu.offsetWidth, mh = menu.offsetHeight;
+  let px = x + 4, py = y + 4;
+  if (px + mw > window.innerWidth  - 10) px = x - mw - 4;
+  if (py + mh > window.innerHeight - 10) py = y - mh - 4;
+  menu.style.left = px + 'px';
+  menu.style.top  = py + 'px';
+}
+
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+  showCtxMenu(e.clientX, e.clientY);
+});
+
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('ctx-menu');
+
+  // Close context menu on any click outside it
+  if (!e.target.closest('#ctx-menu')) menu.style.display = 'none';
+
+  // Context menu category item
+  const ctxItem = e.target.closest('.ctx-item[data-cat]');
+  if (ctxItem) {
+    const f = ctxItem.dataset.cat;
+    _activeCat = f;
+    document.querySelectorAll('.cat-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.cat === _activeCat)
+    );
+    document.querySelectorAll('.ctx-item[data-cat]').forEach(i =>
+      i.classList.toggle('ctx-item--active', i.dataset.cat === _activeCat)
+    );
+    applyFilters();
+    return;
+  }
+
+  // Context menu magazine item
+  const ctxMag = e.target.closest('.ctx-item[data-mag]');
+  if (ctxMag) {
+    const f = ctxMag.dataset.mag;
+    _activeMag = f;
+    document.querySelectorAll('.mag-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.mag === _activeMag)
+    );
+    document.querySelectorAll('.ctx-item[data-mag]').forEach(i =>
+      i.classList.toggle('ctx-item--active', i.dataset.mag === _activeMag)
+    );
+    applyFilters();
+    return;
+  }
+
+  // Filter bar buttons
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+
+  if ('cat' in btn.dataset) {
+    const f = btn.dataset.cat;
+    if (f === _activeCat) return;
+    _activeCat = f;
+    document.querySelectorAll('.cat-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.cat === _activeCat)
+    );
+    document.querySelectorAll('.ctx-item[data-cat]').forEach(i =>
+      i.classList.toggle('ctx-item--active', i.dataset.cat === _activeCat)
+    );
+  } else if ('mag' in btn.dataset) {
+    const f = btn.dataset.mag;
+    if (f === _activeMag) return;
+    _activeMag = f;
+    document.querySelectorAll('.mag-btn').forEach(b =>
+      b.classList.toggle('active', b.dataset.mag === _activeMag)
+    );
+  } else {
+    return;
+  }
+
+  applyFilters();
+});
+
+// ── Cursor overlay: crosshair + circles ──────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+(function() {
+  const canvas = document.getElementById('cursor-canvas');
+  const ctx    = canvas.getContext('2d');
+  let tx = -2000, ty = -2000;
+  let lx = -2000, ly = -2000;
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  document.addEventListener('mousemove', function(e) { tx = e.clientX; ty = e.clientY; });
+
+  function draw() {
+    lx += (tx - lx) * 0.10;
+    ly += (ty - ly) * 0.10;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = 'rgba(0,0,0,0.30)';
+    ctx.lineWidth   = 0.65;
+
+    ctx.beginPath();
+    ctx.moveTo(0, ly); ctx.lineTo(canvas.width, ly);
+    ctx.moveTo(lx, 0); ctx.lineTo(lx, canvas.height);
+    ctx.stroke();
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── Color toggle button ──────────────────────────────────────
+document.getElementById('color-btn').addEventListener('click', () => {
+  _colorEnabled = !_colorEnabled;
+  document.getElementById('color-btn').classList.toggle('off', !_colorEnabled);
+  document.body.classList.toggle('color-mode', _colorEnabled);
+});
+
+});
+
+
+// ── Hover info panel ──────────────────────────────────────────
+(function() {
+  const panel     = document.getElementById('hover-panel');
+  const elCat     = document.getElementById('hp-cat');
+  const elMag     = document.getElementById('hp-mag');
+  const elCountry = document.getElementById('hp-country');
+  function placeNextTo(node) {
+    const r  = node.getBoundingClientRect();
+    const pw = panel.offsetWidth  || 180;
+    const ph = panel.offsetHeight || 100;
+    let x = r.right + 14;
+    if (x + pw > window.innerWidth - 10) x = r.left - pw - 14;
+    let y = r.top + (r.height - ph) / 2;
+    if (y < 10) y = 10;
+    if (y + ph > window.innerHeight - 10) y = window.innerHeight - ph - 10;
+    panel.style.left = x + 'px';
+    panel.style.top  = y + 'px';
+  }
+
+  const visMap = document.getElementById('vis-map');
+  let activeNode = null;
+  let rafId = null;
+
+  function trackLoop() {
+    if (activeNode) {
+      placeNextTo(activeNode);
+      rafId = requestAnimationFrame(trackLoop);
+    }
+  }
+
+  visMap.addEventListener('mouseover', e => {
+    const node = e.target.closest('.vis-node');
+    if (!node || node === activeNode) return;
+    activeNode = node;
+    const cats = node.dataset.c ? node.dataset.c.split(',').map(s => s.trim()) : [];
+    elCat.textContent     = cats.length ? cats.join(', ') : '—';
+    elMag.textContent     = node.dataset.m       || '—';
+    elCountry.textContent = node.dataset.country || '—';
+    panel.classList.add('visible');
+    if (!rafId) rafId = requestAnimationFrame(trackLoop);
+  });
+
+  visMap.addEventListener('mouseout', e => {
+    if (!e.relatedTarget || !e.relatedTarget.closest('.vis-node')) {
+      panel.classList.remove('visible');
+      activeNode = null;
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    }
+  });
+})();
+
+// ── INDEX page ──────────────────────────────────────────────
+(function() {
+  const btn      = document.getElementById('index-btn');
+  const page     = document.getElementById('index-page');
+  const tbody    = document.getElementById('idx-tbody');
+  const heroImg  = document.getElementById('idx-hero-img');
+  const thumbAImg   = document.getElementById('idx-thumb-a-img');
+  const thumbBImg   = document.getElementById('idx-thumb-b-img');
+  const thumbALabel = document.getElementById('idx-thumb-a-label');
+  const thumbBLabel = document.getElementById('idx-thumb-b-label');
+
+  function srcFor(entry) {
+    const f = FOLDERS.find(x => x.label === entry.folder);
+    return f ? f.dir + '/' + entry.image : '';
+  }
+  function refLabel(entry, i) {
+    const num = String(i + 1).padStart(3, '0');
+    const base = (entry.image || '').replace(/\.[^.]+$/, '');
+    return { num, text: `[${num}] ${entry.folder.toUpperCase()}, ${base.toUpperCase()}` };
+  }
+
+  // Build rows
+  entries.forEach((e, i) => {
+    const { num, text } = refLabel(e, i);
+    const medium  = (e.category || '—');
+    const section = (e.gapType  || '—');
+    const tr = document.createElement('tr');
+    tr.className = 'idx-row';
+    tr.innerHTML = `
+      <td class="idx-ref-cell"><span class="idx-arrow">→</span><span class="idx-ref-text">${text}</span></td>
+      <td>${medium}</td>
+      <td>${section}</td>
+      <td>P. ${num}</td>
+    `;
+    tr.addEventListener('mouseenter', () => {
+      heroImg.src = srcFor(e);
+      const prev = entries[i - 1] || entries[entries.length - 1];
+      const next = entries[i + 1] || entries[0];
+      const prevIdx = (i - 1 + entries.length) % entries.length;
+      const nextIdx = (i + 1) % entries.length;
+      thumbAImg.src = srcFor(prev);
+      thumbBImg.src = srcFor(next);
+      thumbALabel.textContent = '[' + String(prevIdx + 1).padStart(3, '0') + ']';
+      thumbBLabel.textContent = '[' + String(nextIdx + 1).padStart(3, '0') + ']';
+    });
+    tr.addEventListener('click', () => {
+      const f = FOLDERS.find(x => x.label === e.folder);
+      if (f) {
+        const p = new URLSearchParams({
+          dir: f.dir, file: e.image, mag: e.folder,
+          country: f.country || '', cats: e.category || ''
+        });
+        window.location.href = 'object.html?' + p.toString();
+      }
+    });
+    tbody.appendChild(tr);
+  });
+
+  // Idle previews (first 3 entries)
+  if (entries[0]) heroImg.src    = srcFor(entries[0]);
+  if (entries[1]) thumbAImg.src  = srcFor(entries[1]);
+  if (entries[2]) thumbBImg.src  = srcFor(entries[2]);
+  if (entries[1]) thumbALabel.textContent = '[002]';
+  if (entries[2]) thumbBLabel.textContent = '[003]';
+
+  function open()  { page.classList.add('open');    page.setAttribute('aria-hidden', 'false'); }
+  function close() { page.classList.remove('open'); page.setAttribute('aria-hidden', 'true');  }
+
+  btn.addEventListener('click', open);
+  page.querySelectorAll('[data-action="close"]').forEach(el => el.addEventListener('click', close));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && page.classList.contains('open')) close();
+  });
+})();
+</script>
+
+<a id="story-btn" href="story.html">
+  <svg viewBox="0 0 14 14"><line x1="1" y1="4" x2="13" y2="4"/><line x1="1" y1="7" x2="10" y2="7"/><line x1="1" y1="10" x2="13" y2="10"/></svg>
+  Story
+</a>
+
+<div id="index-btn">Index</div>
+
+<div class="index-page" id="index-page" aria-hidden="true">
+  <nav class="idx-nav">
+    <button class="idx-link" data-action="close">The Manufactured Face</button>
+    <button class="idx-link" data-action="close">Map</button>
+    <button class="idx-link active">Index</button>
+  </nav>
+
+  <div class="idx-thumbs">
+    <div class="idx-thumb">
+      <div class="idx-thumb-box" id="idx-thumb-a"><img id="idx-thumb-a-img" alt=""></div>
+      <div class="idx-thumb-label" id="idx-thumb-a-label">[001]</div>
+    </div>
+    <div class="idx-thumb">
+      <div class="idx-thumb-box" id="idx-thumb-b"><img id="idx-thumb-b-img" alt=""></div>
+      <div class="idx-thumb-label" id="idx-thumb-b-label">[002]</div>
+    </div>
+  </div>
+
+  <div class="idx-hero">
+    <div class="idx-thumb-box"><img id="idx-hero-img" alt=""></div>
+  </div>
+
+  <div class="idx-table-wrap">
+    <table class="idx-table">
+      <thead>
+        <tr>
+          <th>Reference&nbsp;↑</th>
+          <th>Medium</th>
+          <th>Section</th>
+          <th>Read</th>
+        </tr>
+      </thead>
+      <tbody id="idx-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="color-btn" class="off">
+  <span class="cb-dot"></span>
+  Color
+</div>
+
+<canvas id="cursor-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9000;"></canvas>
+
+<div id="ctx-menu" class="ctx-menu">
+  <div class="ctx-group-label">Filter by Category</div>
+  <div class="ctx-item ctx-item--active" data-cat="">All</div>
+  <div class="ctx-item" data-cat="The Advertisement">The Advertisement</div>
+  <div class="ctx-item" data-cat="The Borrowed Image">The Borrowed Image</div>
+  <div class="ctx-item" data-cat="The Modern Face">The Modern Face</div>
+  <div class="ctx-item" data-cat="The Professional">The Professional</div>
+  <div class="ctx-item" data-cat="The Traditional Body">The Traditional Body</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-group-label">Filter by Magazine</div>
+  <div class="ctx-item ctx-item--active" data-mag="">All</div>
+  <div class="ctx-item" data-mag="Al-Kawakib">Al-Kawakib</div>
+  <div class="ctx-item" data-mag="Al-Thqafa">Al-Thqafa</div>
+  <div class="ctx-item" data-mag="Al-Rissalah">Al-Rissalah</div>
+  <div class="ctx-item" data-mag="Al-ethnayn">Al-ethnayn</div>
+  <div class="ctx-item" data-mag="Al-Mawed">Al-Mawed</div>
+  <div class="ctx-item" data-mag="Al-alam">Al-alam</div>
+  <div class="ctx-item" data-mag="Al-ethnayn 2">Al-ethnayn 2</div>
+  <div class="ctx-item" data-mag="Al-ethnayn 3">Al-ethnayn 3</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Performative Screenings #85: Huda Takriti, Fluid Grounds - Independent Space Index (clone)</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    color: red;
+    background-color: white;
+    font-family: "Times New Roman", Times, serif;
+    line-height: 1.2;
+    border-top: 2px solid black;
+  }
+  a { color: red; text-decoration: none; }
+  .mono { font-family: monospace; font-size: 11px; }
+
+  /* ===== Header ===== */
+  .site-title {
+    padding: 0 12px;
+  }
+  .site-title h1 {
+    margin: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: normal;
+    width: fit-content;
+  }
+  nav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 0 11px;
+  }
+  nav .navigation_element { display: table-cell; }
+  nav .navigation_element a {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 7px;
+    border-top: 1px solid red;
+    border-bottom: 1px solid red;
+    border-right: 1px solid red;
+    background-color: white;
+  }
+  nav .navigation_element:first-child a { border-left: 1px solid red; }
+  nav .navigation_element.active a { background-color: red; color: white; }
+
+  /* ===== Archive header ===== */
+  .archive-detail { margin: 0 25%; padding: 40px 5px; }
+  @media screen and (max-width: 1000px) {
+    .archive-detail { margin: 0 auto; padding: 24px 10px; }
+  }
+
+  .archive-tags { display: flex; }
+  .tag { display: flex; }
+  .tag-main {
+    padding: 0 7px;
+    background-color: rgba(255, 214, 214, 1);
+    height: 40px;
+    display: flex;
+    align-items: center;
+  }
+  .featured-article-tags .tag-sub { background-color: white; }
+  .tag-sub {
+    padding: 0 7px;
+    background-color: rgba(255, 214, 214, 0.5);
+    height: 40px;
+    display: flex;
+    align-items: center;
+  }
+
+  .archive-header-framed { border: 1px solid red; }
+
+  .archive-title {
+    font-size: 40px;
+    font-weight: bold;
+    margin-bottom: -1px;
+    border-bottom: 1px solid red;
+    padding: 7px;
+    display: flex;
+    align-items: center;
+  }
+  @media screen and (max-width: 800px) {
+    .archive-title { font-size: 32px; }
+  }
+
+  .archive-meta {
+    padding: 7px;
+    border-bottom: 1px solid red;
+    font-size: 16px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .archive-image { padding: 12px; }
+  .archive-image img { width: 100%; height: auto; display: block; }
+
+  /* ===== Sections ===== */
+  .section-title {
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: normal;
+    border-top: 1px solid red;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    margin: 0;
+  }
+  .archive-section { margin-bottom: 0; }
+  .section-content { padding: 12px 0; font-size: 20px; }
+  .section-content p { margin: 0 0 1em; }
+
+  .keywords-section { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 0; }
+  .keywords-section .tag-sub { font-size: 16px; }
+
+  .spaces { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 0; }
+  .space { display: flex; gap: 6px; align-items: center; }
+  .space-dot { height: 12px; width: 12px; border-radius: 50%; background-color: red; display: inline-block; }
+  .space-name { font-weight: bold; }
+
+  .artist { font-size: 16px; }
+
+  .section-link { text-decoration: underline; font-size: 16px; }
+
+  /* ===== Related content grid ===== */
+  .detail-related-section {
+    width: calc(200% - 1px);
+    margin-left: calc(-50% + 1px);
+  }
+  @media screen and (max-width: 1000px) {
+    .detail-related-section { width: 100%; margin-left: 0; }
+  }
+  .all-content-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+  .content-article {
+    width: 25%;
+    aspect-ratio: 1/1;
+    border: 1px solid red;
+    margin-right: -1px;
+    margin-bottom: -1px;
+    position: relative;
+  }
+  @media screen and (max-width: 1000px) { .content-article { width: 50%; } }
+  @media screen and (max-width: 700px) { .content-article { width: 100%; } }
+
+  .content-article-tags { position: absolute; top: 0; left: 0; display: flex; }
+  .content-article-tag-main {
+    padding: 0 7px;
+    background-color: rgba(255, 214, 214, 1);
+    height: 40px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+  }
+  .content-article-tag-sub {
+    padding: 0 7px;
+    background-color: rgba(255, 214, 214, 0.5);
+    height: 40px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+  }
+  .content-article-title {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    padding: 24px;
+  }
+  .content-article-title-main { font-weight: bold; font-size: 16px; margin: 0 0 8px; }
+  .content-article-date-loc { font-size: 16px; }
+  .see-more {
+    width: 25%;
+    aspect-ratio: 1/1;
+    border: 1px solid red;
+    margin-right: -1px;
+    margin-bottom: -1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="site-title">
+    <a href="#"><h1>Independent Space Index</h1></a>
+  </div>
+  <nav aria-label="primary navigation">
+    <div class="navigation_element"><a href="#">Network</a></div>
+    <div class="navigation_element"><a href="#">Festival</a></div>
+    <div class="navigation_element active"><a href="#">Archive</a></div>
+    <div class="navigation_element"><a href="#">About</a></div>
+  </nav>
+</header>
+
+<main class="archive-detail">
+
+  <section class="archive-header">
+    <div class="archive-tags featured-article-tags">
+      <div class="tag">
+        <a href="#"><div class="tag-main">Public format</div></a>
+        <a href="#"><div class="tag-sub">Solo Exhibition</div></a>
+      </div>
+    </div>
+
+    <div class="archive-header-framed">
+      <h1 class="archive-title">Performative Screenings #85: Huda Takriti, Fluid Grounds</h1>
+
+      <div class="archive-meta">
+        <div>31.5.&ndash;2.6.2024</div>
+        <div>school</div>
+      </div>
+
+      <div class="archive-image">
+        <img src="assest/isi_clone/fluid-grounds.jpg" alt="Installation view, Fluid Grounds">
+      </div>
+    </div>
+  </section>
+
+  <section class="archive-section">
+    <h2 class="section-title mono">Info</h2>
+    <div class="section-content">
+      <p>After 132 years of French colonial occupation, Algeria celebrated its independence on July 5, 1962. Algerian independence has also marked the official end of the bloody Algerian Revolution, or Algerian War of Independence (1954&ndash;1962). Over the summer of 1962, around 800.000 people left the newly independent Algeria, mostly for metropolitan France. These were the European settlers - by then called the pieds-noirs - for whom 1962 continues to represent a moment of profound rupture and the start of their exile from what they perceived to be an Algerian homeland. Fluid Grounds comes as a reflection on the pieds-noirs&rsquo;s digital practices of remembrance and contestation of France&rsquo;s colonial past. Divided into two parts, a video essay and a photo collage, Takriti confronts different ideologies and online practices of nostalgia through image-text or text-text collages. When examining the imagery used in both parts - imagery that circulates on the web by Instagram accounts and Facebook groups dedicated by the pied-noirs as sites of memory and nostalgia - it becomes clear that the artist&rsquo;s interest does not only lay in the origin of these photos but also in their reception and their contribution to historiography. Thus, she constantly asks what can and should be shown, and likewise lends the images the possibility of opacity, of non-transparency, whereby precisely not everything can and should be seen.</p>
+    </div>
+  </section>
+
+  <section class="archive-section">
+    <h2 class="section-title mono">Keywords</h2>
+    <div class="section-content keywords-section">
+      <div class="tag"><a href="#"><div class="tag-sub">Solo Exhibition</div></a></div>
+      <div class="tag"><a href="#"><div class="tag-sub">Screening</div></a></div>
+    </div>
+  </section>
+
+  <section class="archive-section">
+    <h2 class="section-title mono">Spaces</h2>
+    <div class="section-content">
+      <div class="spaces">
+        <a href="#" class="space">
+          <div class="space-dot"></div>
+          <div class="space-name">school</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="archive-section">
+    <h2 class="section-title mono">Artists</h2>
+    <div class="section-content">
+      <span class="artist">Huda Takriti</span>
+    </div>
+  </section>
+
+  <section class="archive-section">
+    <h2 class="section-title mono">Links</h2>
+    <div class="section-content">
+      <a class="section-link" href="https://weloveschool.org/performative-screenings/85-huda-takriti" target="_blank">https://weloveschool.org/performative-screenings/85-huda-takriti</a>
+    </div>
+  </section>
+
+  <section class="detail-related-section">
+    <h3 class="section-title mono">Related content</h3>
+
+    <div class="all-content-list">
+
+      <div class="content-article">
+        <div class="content-article-tags">
+          <div class="content-article-tag-main">Public format</div>
+          <div class="content-article-tag-sub">Solo Exhibition</div>
+        </div>
+        <a href="#" class="content-article-title">
+          <h3 class="content-article-title-main">CickinDunt (Anna Cherepanova Vitalii Cherepanov): An Artificial Plant in Real Soil</h3>
+          <div class="content-article-date-loc">31.5.&ndash;2.6.2024, Mz*Baltazar's Laboratory</div>
+        </a>
+      </div>
+
+      <div class="content-article">
+        <div class="content-article-tags">
+          <div class="content-article-tag-main">Public format</div>
+          <div class="content-article-tag-sub">Solo Exhibition</div>
+        </div>
+        <a href="#" class="content-article-title">
+          <h3 class="content-article-title-main">Francesca Aldegani: Augmented Perception (AP), Puppetry and Other Animist Practices</h3>
+          <div class="content-article-date-loc">31.5.&ndash;2.6.2024, puuul</div>
+        </a>
+      </div>
+
+      <div class="content-article">
+        <div class="content-article-tags">
+          <div class="content-article-tag-main">Public format</div>
+          <div class="content-article-tag-sub">Solo Exhibition</div>
+        </div>
+        <a href="#" class="content-article-title">
+          <h3 class="content-article-title-main">Hannes Gr&ouml;blacher: SUPERBAU</h3>
+          <div class="content-article-date-loc">31.5.&ndash;2.6.2024, Kulturdrogerie</div>
+        </a>
+      </div>
+
+      <div class="content-article">
+        <div class="content-article-tags">
+          <div class="content-article-tag-main">Public format</div>
+          <div class="content-article-tag-sub">Solo Exhibition</div>
+        </div>
+        <a href="#" class="content-article-title">
+          <h3 class="content-article-title-main">Herbert De Colle: Glow</h3>
+          <div class="content-article-date-loc">31.5.&ndash;2.6.2024, Kunstraum am Schauplatz</div>
+        </a>
+      </div>
+
+      <div class="content-article">
+        <div class="content-article-tags">
+          <div class="content-article-tag-main">Public format</div>
+          <div class="content-article-tag-sub">Solo Exhibition</div>
+        </div>
+        <a href="#" class="content-article-title">
+          <h3 class="content-article-title-main">Ioana Neme&#537;: All the Future Ahead</h3>
+          <div class="content-article-date-loc">31.5.&ndash;2.6.2024, Kevin</div>
+        </a>
+      </div>
+
+      <a href="#" class="see-more">See more</a>
+
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>
