@@ -19,6 +19,15 @@ SUFFIX = ".csv"
 
 data = {}
 
+
+def short_cat(name: str) -> str:
+    """Strip the 'Remembering ' prefix so the JS filter keys match ('People', etc.)."""
+    name = (name or "").strip()
+    if name.startswith("Remembering "):
+        return name[len("Remembering "):]
+    return name
+
+
 for fname in sorted(os.listdir(CSV_DIR)):
     if not (fname.startswith(PREFIX) and fname.endswith(SUFFIX)):
         continue
@@ -29,8 +38,8 @@ for fname in sorted(os.listdir(CSV_DIR)):
         reader = csv.DictReader(f)
         for row in reader:
             img = (row.get("Image Name") or "").strip()
-            primary = (row.get("Primary_Category") or "").strip()
-            secondary = (row.get("Secondary_Category") or "").strip()
+            primary = short_cat(row.get("Primary_Category"))
+            secondary = short_cat(row.get("Secondary_Category"))
             if not img or not primary or primary in ("ERROR", "Unknown"):
                 continue
             key = f"{folder_key}|{img}"
