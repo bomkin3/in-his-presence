@@ -1,2 +1,9 @@
-.DS_Store
-.claude/settings.local.json
+# Ignore all files and directories by default
+*
+
+# Allow Git into directories so it can find HTML files
+!*/
+
+# Whitelist only HTML files and the ignore file itself
+!*.html
+!.gitignore
