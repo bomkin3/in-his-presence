@@ -3590,9 +3590,45 @@
     }
     .adx-lightbox.is-open { display: flex; }
     .adx-lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; border: 1px solid #4000FA; }
+
+    /* ── Phone gate: phones only (touch + small screen, portrait or landscape);
+          tablets and desktops pass through. ── */
+    #mobile-gate { display: none; }
+    @media (pointer: coarse) and (max-width: 767px), (pointer: coarse) and (max-height: 500px) {
+      html, body { overflow: hidden !important; height: 100%; }
+      body > *:not(#mobile-gate) { display: none !important; }
+      #mobile-gate {
+        display: flex;
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        background: #0048f5;
+        color: #f7f7f7;
+        font-family: 'Archivo', sans-serif;
+        text-align: center;
+      }
+      #mobile-gate p {
+        margin: 0;
+        max-width: 100%;
+        font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-size: clamp(20px, 5.5vw, 28px);
+        line-height: 1.2;
+        color: #f7f7f7;
+        text-transform: lowercase;
+      }
+    }
   </style>
 </head>
 <body class="mode-image intro-active">
+
+<div id="mobile-gate" role="alert">
+  <p>Please visit the archive on desktop to enjoy the full experience</p>
+</div>
 
 <!-- ───────── SVG filter: bronze/sepia duotone ───────── -->
 <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute; width:0; height:0; overflow:hidden;" aria-hidden="true">
